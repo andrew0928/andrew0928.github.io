@@ -62,17 +62,17 @@ navs:
     href: /
     label: Home
 
-#  -
-#    href: /open-source
-#    label: Open-Source
+  -
+    href: /open-source
+    label: Open-Source
 
   -
     href: /blog
     label: Blog
 
-#  -
-#    href: /bookmark
-#    label: Bookmark
+  -
+    href: /bookmark
+    label: Bookmark
 
   -
     href: /about
