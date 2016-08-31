@@ -36,6 +36,9 @@ highlighter: rouge
 lsi:         false
 excerpt_separator: "\n\n"
 
+kramdown:
+  input: GFM
+  
 source:      .
 destination: ./_site
 
