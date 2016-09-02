@@ -1,3 +1,7 @@
+<div class="fb-page" data-href="https://www.facebook.com/andrew.blog.0928/" data-small-header="false" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true"><blockquote cite="https://www.facebook.com/andrew.blog.0928/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/andrew.blog.0928/">安德魯的部落格</a></blockquote></div>
+
+<hr />
+
 <h3 class="sidebar-title">My Popular Repositories</h3>
 {% assign sorted_repos = (site.github.public_repositories | sort: 'stargazers_count') | reverse | where: "fork", "false" %}
 {% for repo in sorted_repos | limit: site.side_bar_repo_limit %}
