@@ -35,6 +35,7 @@ css: ['index.css', 'sidebar-popular-repo.css']
                     <h2 class="post-list-title">
                         <a class="hvr-underline-from-center" href="{{ site.url }}{{ post.url }}">{{ post.title }}</a>
                     </h2>
+                    <div class="fb-like" data-href="{{ site.url }}{{ post.url }}" data-layout="standard" data-action="like" data-size="small" data-show-faces="true" data-share="true"></div>
                     <p class="post-list-description">
                         {{ post.excerpt | strip_html | strip }}
                     </p>
