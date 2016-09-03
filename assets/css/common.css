@@ -175,3 +175,7 @@
 .sidebar-title {
     text-align: center;
 }
+
+body img {
+    max-width: none;
+}
