@@ -1,16 +1,17 @@
 ---
 layout: post
-title: EF#2. Entity & Encapsulation
+title: "EF#2. Entity & Encapsulation"
 categories:
 - ".NET"
-- C#
-- SQL
+- "C#"
+- "SQL"
 - "物件導向"
-tags: []
+tags: [".NET","C#","SQL","物件導向"]
 published: true
 comments: true
+permalink: "/2009/01/23/ef2-entity-encapsulation/"
 ---
-<p><p>前一篇講了一堆大道理，這篇就來看一些實作吧。各種 ORM 的技術都有共同的目的，就是能把物件的狀態存到關聯式資料庫，而這樣的對應機制則是各家 ORM 競爭的重點，勝負的關鍵不外乎是那一套比較簡單? 那一套包裝出的 Entity 物件能夠更貼近一般的物件?</p> <p>會有這樣的 "對應" 機制需求，原因只有一個，物件技術發展的很快，已經能解決大多數軟體開發的需求了，不過資料庫就沒這麼幸運，現在的 DBMS 撇開一些技術規格不談，本質上還是跟廿年前差不多，就是關聯式資料庫而已，本質上就是一堆 table + relationship, 配合 SQL 語法來處理資料。發展至今，物件技術跟資料庫技術能處理的問題，已經是兩個完全不同世界的問題了，三層式的架構在這段出現斷層...。</p> <p>解決方式大概有兩條路，一種就是想辦法把這兩個世界串起來，就是 ORM framework 想做的事。另一個就是改造 RDBMS，讓 RDBMS 進化成也具有物件導向特性的資料庫。不過以眼前的五年十年來看，ORM 還是大有可為。ORM 只要能把 "對應" 這件事做到完美的地步，其實在某個層面上就已經做到 OODB 的願景了，只差在這些物件是活在 APP 這端，不是活在資料庫那端...。</p> <p>扯遠了，接下來我會試著從物件技術的三大核心 (封裝、繼承、多型)，及資料庫最需要的查尋機制 (QUERY) 來看看 Entity Framework 各能提供什麼支援，才能客觀的評論 Entity Framework 值不值得你投資在它身上。</p> <p>在繼續看下去之前，請先俱備基本的 Entity Framework 運用的能力。在 <a href="http://www.microsoft.com/taiwan/msdn/columns/jhu_ming_jhong/">MSDN 名家專欄裡 MVP(朱明中)</a> 寫的這幾篇我覺的很不錯，可以參考看看。我就是看這幾篇入門的 :D。幾年前在比賽上碰過他幾次，我還蠻配服他的，可以靠自學而有今天的成就。以下是他寫的幾篇 ADO.NET / Entity Framework 的系列文章:</p> <ol> <li><a href="http://www.microsoft.com/taiwan/msdn/columns/jhu_ming_jhong/ADO.NET_Entity_Framework_Entity_Operation.htm">讀寫 ADO.NET Entity Framework</a> (2007 年 9 月)  </li><li><a href="http://www.microsoft.com/taiwan/msdn/columns/jhu_ming_jhong/ADO.NET_Entity_Framework_Interaction_to_ADO.NET_data_objects.htm">由 LINQ 存取 ADO.NET 物件</a> (2007 年 9 月)  </li><li><a href="http://www.microsoft.com/taiwan/msdn/columns/jhu_ming_jhong/ADO.NET_Entity_Framework_Integration_with_exist_applications.htm">整合 ADO.NET Entity Framework 到應用程式中</a> (2007 年 9 月)  </li><li><a href="http://www.microsoft.com/taiwan/msdn/columns/jhu_ming_jhong/ADO.NET_Entity_Framework_A_First_look.htm">首次接觸 ADO.NET Entity Framework</a> (2007 年 9 月)  </li><li><a href="http://www.microsoft.com/taiwan/msdn/columns/jhu_ming_jhong/ADO.NET_Entity_Framework_Overview.htm">ADO.NET Entity Framework 概觀</a> (2007 年 9 月) </li></ol> <p>&nbsp;</p> <p>在開始之前，我們先來看看一個最簡單的 Entity Framework 的範例，然後來看看封裝性能夠對你的程式帶來什麼影響? 先來看看只用到了 ORM 卻沒發揮封裝性的例子:</p> <p><a href="/wp-content/be-files/WindowsLiveWriter/EF2.Entityencapsulation_14856/image_4.png"><img style="border-right: 0px; border-top: 0px; border-left: 0px; border-bottom: 0px" height="221" alt="image" src="/wp-content/be-files/WindowsLiveWriter/EF2.Entityencapsulation_14856/image_thumb_1.png" width="172" border="0" /></a> </p> <p>這是存放會員資料的表格，對應的 TABLE 很簡單，SQL 如下:</p> <div><span class="copycode" title="copy code into clipboard.">[copy code]</span> <div style="display: none"><pre id="codeData" style="display: none">CREATE TABLE [dbo].[Users](
+<p>前一篇講了一堆大道理，這篇就來看一些實作吧。各種 ORM 的技術都有共同的目的，就是能把物件的狀態存到關聯式資料庫，而這樣的對應機制則是各家 ORM 競爭的重點，勝負的關鍵不外乎是那一套比較簡單? 那一套包裝出的 Entity 物件能夠更貼近一般的物件?</p> <p>會有這樣的 "對應" 機制需求，原因只有一個，物件技術發展的很快，已經能解決大多數軟體開發的需求了，不過資料庫就沒這麼幸運，現在的 DBMS 撇開一些技術規格不談，本質上還是跟廿年前差不多，就是關聯式資料庫而已，本質上就是一堆 table + relationship, 配合 SQL 語法來處理資料。發展至今，物件技術跟資料庫技術能處理的問題，已經是兩個完全不同世界的問題了，三層式的架構在這段出現斷層...。</p> <p>解決方式大概有兩條路，一種就是想辦法把這兩個世界串起來，就是 ORM framework 想做的事。另一個就是改造 RDBMS，讓 RDBMS 進化成也具有物件導向特性的資料庫。不過以眼前的五年十年來看，ORM 還是大有可為。ORM 只要能把 "對應" 這件事做到完美的地步，其實在某個層面上就已經做到 OODB 的願景了，只差在這些物件是活在 APP 這端，不是活在資料庫那端...。</p> <p>扯遠了，接下來我會試著從物件技術的三大核心 (封裝、繼承、多型)，及資料庫最需要的查尋機制 (QUERY) 來看看 Entity Framework 各能提供什麼支援，才能客觀的評論 Entity Framework 值不值得你投資在它身上。</p> <p>在繼續看下去之前，請先俱備基本的 Entity Framework 運用的能力。在 <a href="http://www.microsoft.com/taiwan/msdn/columns/jhu_ming_jhong/">MSDN 名家專欄裡 MVP(朱明中)</a> 寫的這幾篇我覺的很不錯，可以參考看看。我就是看這幾篇入門的 :D。幾年前在比賽上碰過他幾次，我還蠻配服他的，可以靠自學而有今天的成就。以下是他寫的幾篇 ADO.NET / Entity Framework 的系列文章:</p> <ol> <li><a href="http://www.microsoft.com/taiwan/msdn/columns/jhu_ming_jhong/ADO.NET_Entity_Framework_Entity_Operation.htm">讀寫 ADO.NET Entity Framework</a> (2007 年 9 月)  <li><a href="http://www.microsoft.com/taiwan/msdn/columns/jhu_ming_jhong/ADO.NET_Entity_Framework_Interaction_to_ADO.NET_data_objects.htm">由 LINQ 存取 ADO.NET 物件</a> (2007 年 9 月)  <li><a href="http://www.microsoft.com/taiwan/msdn/columns/jhu_ming_jhong/ADO.NET_Entity_Framework_Integration_with_exist_applications.htm">整合 ADO.NET Entity Framework 到應用程式中</a> (2007 年 9 月)  <li><a href="http://www.microsoft.com/taiwan/msdn/columns/jhu_ming_jhong/ADO.NET_Entity_Framework_A_First_look.htm">首次接觸 ADO.NET Entity Framework</a> (2007 年 9 月)  <li><a href="http://www.microsoft.com/taiwan/msdn/columns/jhu_ming_jhong/ADO.NET_Entity_Framework_Overview.htm">ADO.NET Entity Framework 概觀</a> (2007 年 9 月) </li></ol> <p>&nbsp;</p> <p>在開始之前，我們先來看看一個最簡單的 Entity Framework 的範例，然後來看看封裝性能夠對你的程式帶來什麼影響? 先來看看只用到了 ORM 卻沒發揮封裝性的例子:</p> <p><a href="/wp-content/be-files/WindowsLiveWriter/EF2.Entityencapsulation_14856/image_4.png"><img style="border-right: 0px; border-top: 0px; border-left: 0px; border-bottom: 0px" height="221" alt="image" src="/wp-content/be-files/WindowsLiveWriter/EF2.Entityencapsulation_14856/image_thumb_1.png" width="172" border="0"></a> </p> <p>這是存放會員資料的表格，對應的 TABLE 很簡單，SQL 如下:</p> <div><span class="copycode" title="copy code into clipboard.">[copy code]</span> <div style="display: none"><pre id="codeData" style="display: none">CREATE TABLE [dbo].[Users](
 	[ID] [nvarchar](50) NOT NULL,
 	[PasswordHash] [image] NOT NULL,
 	[PasswordHint] [nvarchar](100) NOT NULL,
@@ -28,54 +29,54 @@ ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
             using (Membership ctx = new Membership())
             {
                 // create user account:
-                User newUser = new User();</pre></div></div></p>
+                User newUser = new User();
 
-<p>                newUser.ID = "andrew";<br />
-                newUser.PasswordHint = "12345";<br />
-                newUser.PasswordHash = HashAlgorithm.Create("MD5").ComputeHash(Encoding.Unicode.GetBytes("12345"));<br />
-                newUser.SSN = "A123456789";<br />
-                newUser.Gender = 1;</p>
+                newUser.ID = "andrew";
+                newUser.PasswordHint = "12345";
+                newUser.PasswordHash = HashAlgorithm.Create("MD5").ComputeHash(Encoding.Unicode.GetBytes("12345"));
+                newUser.SSN = "A123456789";
+                newUser.Gender = 1;
 
-<p>                ctx.AddToUserSet(newUser);<br />
-                ctx.SaveChanges();<br />
+                ctx.AddToUserSet(newUser);
+                ctx.SaveChanges();
             }
-
+</pre></div>
 <div style="border-right: 1px solid; border-top: 1px solid; border-left: 1px solid; border-bottom: 1px solid">
-<div class="csharpcode"><pre class="alt"><span class="lnum">   1:  </span><span class="rem">// 準備 object context</span></pre><pre><span class="lnum">   2:  </span><span class="kwrd">using</span> (Membership ctx = <span class="kwrd">new</span> Membership())</pre><pre class="alt"><span class="lnum">   3:  </span>{</pre><pre><span class="lnum">   4:  </span>    <span class="rem">// create user account:</span></pre><pre class="alt"><span class="lnum">   5:  </span>    User newUser = <span class="kwrd">new</span> User();</pre><pre><span class="lnum">   6:  </span>    newUser.ID = <span class="str">"andrew"</span>;</pre><pre class="alt"><span class="lnum">   7:  </span>    newUser.PasswordHint = <span class="str">"12345"</span>;</pre><pre><span class="lnum">   8:  </span>    newUser.PasswordHash = HashAlgorithm.Create(<span class="str">"MD5"</span>).ComputeHash(Encoding.Unicode.GetBytes(<span class="str">"12345"</span>));</pre><pre class="alt"><span class="lnum">   9:  </span>    newUser.SSN = <span class="str">"A123456789"</span>;</pre><pre><span class="lnum">  10:  </span>    newUser.Gender = 1;</pre><pre class="alt"><span class="lnum">  11:  </span>    ctx.AddToUserSet(newUser);</pre><pre><span class="lnum">  12:  </span>    ctx.SaveChanges();</pre><pre class="alt"><span class="lnum">  13:  </span>}</pre></div></div><!-- end of code area -->
+<div class="csharpcode"><pre class="alt"><span class="lnum">   1:  </span><span class="rem">// 準備 object context</span></pre><pre><span class="lnum">   2:  </span><span class="kwrd">using</span> (Membership ctx = <span class="kwrd">new</span> Membership())</pre><pre class="alt"><span class="lnum">   3:  </span>{</pre><pre><span class="lnum">   4:  </span>    <span class="rem">// create user account:</span></pre><pre class="alt"><span class="lnum">   5:  </span>    User newUser = <span class="kwrd">new</span> User();</pre><pre><span class="lnum">   6:  </span>    newUser.ID = <span class="str">"andrew"</span>;</pre><pre class="alt"><span class="lnum">   7:  </span>    newUser.PasswordHint = <span class="str">"12345"</span>;</pre><pre><span class="lnum">   8:  </span>    newUser.PasswordHash = HashAlgorithm.Create(<span class="str">"MD5"</span>).ComputeHash(Encoding.Unicode.GetBytes(<span class="str">"12345"</span>));</pre><pre class="alt"><span class="lnum">   9:  </span>    newUser.SSN = <span class="str">"A123456789"</span>;</pre><pre><span class="lnum">  10:  </span>    newUser.Gender = 1;</pre><pre class="alt"><span class="lnum">  11:  </span>    ctx.AddToUserSet(newUser);</pre><pre><span class="lnum">  12:  </span>    ctx.SaveChanges();</pre><pre class="alt"><span class="lnum">  13:  </span>}</pre></div></div><!-- end of code area --></div>
 <p>&nbsp;</p>
 <div><b>檢查密碼的程式碼</b><span class="copycode" title="copy code into clipboard.">[copy code]</span>
 <div style="display: none"><pre id="codeData" style="display: none">                // 準備 object context
                 using (Membership ctx = new Membership())
                 {
                     string passwordText = "12345";
-                    User curUser = ctx.GetObjectByKey(new EntityKey("Membership.UserSet", "ID", "andrew")) as User;</pre></div></div></p>
+                    User curUser = ctx.GetObjectByKey(new EntityKey("Membership.UserSet", "ID", "andrew")) as User;
 
-<p>                    bool isPasswordCorrect = true;</p>
+                    bool isPasswordCorrect = true;
 
-<p>                    {<br />
-                        byte[] passwordTextHash = HashAlgorithm.Create("MD5").ComputeHash(Encoding.Unicode.GetBytes(passwordText));<br />
-                        if (passwordTextHash.Length != curUser.PasswordHash.Length)<br />
-                        {<br />
-                            isPasswordCorrect = false;<br />
-                        }<br />
-                        else<br />
-                        {<br />
-                            for (int pos = 0; pos &lt; curUser.PasswordHash.Length; pos++)<br />
-                            {<br />
-                                if (passwordTextHash[pos] != curUser.PasswordHash[pos])<br />
-                                {<br />
-                                    isPasswordCorrect = false;<br />
-                                    break;<br />
-                                }<br />
-                            }<br />
-                        }<br />
-                    }</p>
+                    {
+                        byte[] passwordTextHash = HashAlgorithm.Create("MD5").ComputeHash(Encoding.Unicode.GetBytes(passwordText));
+                        if (passwordTextHash.Length != curUser.PasswordHash.Length)
+                        {
+                            isPasswordCorrect = false;
+                        }
+                        else
+                        {
+                            for (int pos = 0; pos &lt; curUser.PasswordHash.Length; pos++)
+                            {
+                                if (passwordTextHash[pos] != curUser.PasswordHash[pos])
+                                {
+                                    isPasswordCorrect = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
 
-<p>                    Console.WriteLine("Password ({0}) check: {1}", passwordText, isPasswordCorrect ? "PASS" : "FAIL");<br />
+                    Console.WriteLine("Password ({0}) check: {1}", passwordText, isPasswordCorrect ? "PASS" : "FAIL");
                 }
-
+</pre></div>
 <div style="border-right: 1px solid; border-top: 1px solid; border-left: 1px solid; border-bottom: 1px solid">
-<div class="csharpcode"><pre class="alt"><span class="lnum">   1:  </span><span class="rem">// 準備 object context</span></pre><pre><span class="lnum">   2:  </span><span class="kwrd">using</span> (Membership ctx = <span class="kwrd">new</span> Membership())</pre><pre class="alt"><span class="lnum">   3:  </span>{</pre><pre><span class="lnum">   4:  </span>    <span class="kwrd">string</span> passwordText = <span class="str">"12345"</span>;</pre><pre class="alt"><span class="lnum">   5:  </span>    User curUser = ctx.GetObjectByKey(<span class="kwrd">new</span> EntityKey(<span class="str">"Membership.UserSet"</span>, <span class="str">"ID"</span>, <span class="str">"andrew"</span>)) <span class="kwrd">as</span> User;</pre><pre><span class="lnum">   6:  </span>    <span class="kwrd">bool</span> isPasswordCorrect = <span class="kwrd">true</span>;</pre><pre class="alt"><span class="lnum">   7:  </span>    {</pre><pre><span class="lnum">   8:  </span>        <span class="kwrd">byte</span>[] passwordTextHash = HashAlgorithm.Create(<span class="str">"MD5"</span>).ComputeHash(Encoding.Unicode.GetBytes(passwordText));</pre><pre class="alt"><span class="lnum">   9:  </span>        <span class="kwrd">if</span> (passwordTextHash.Length != curUser.PasswordHash.Length)</pre><pre><span class="lnum">  10:  </span>        {</pre><pre class="alt"><span class="lnum">  11:  </span>            isPasswordCorrect = <span class="kwrd">false</span>;</pre><pre><span class="lnum">  12:  </span>        }</pre><pre class="alt"><span class="lnum">  13:  </span>        <span class="kwrd">else</span></pre><pre><span class="lnum">  14:  </span>        {</pre><pre class="alt"><span class="lnum">  15:  </span>            <span class="kwrd">for</span> (<span class="kwrd">int</span> pos = 0; pos &lt; curUser.PasswordHash.Length; pos++)</pre><pre><span class="lnum">  16:  </span>            {</pre><pre class="alt"><span class="lnum">  17:  </span>                <span class="kwrd">if</span> (passwordTextHash[pos] != curUser.PasswordHash[pos])</pre><pre><span class="lnum">  18:  </span>                {</pre><pre class="alt"><span class="lnum">  19:  </span>                    isPasswordCorrect = <span class="kwrd">false</span>;</pre><pre><span class="lnum">  20:  </span>                    <span class="kwrd">break</span>;</pre><pre class="alt"><span class="lnum">  21:  </span>                }</pre><pre><span class="lnum">  22:  </span>            }</pre><pre class="alt"><span class="lnum">  23:  </span>        }</pre><pre><span class="lnum">  24:  </span>    }</pre><pre class="alt"><span class="lnum">  25:  </span>    Console.WriteLine(<span class="str">"Password ({0}) check: {1}"</span>, passwordText, isPasswordCorrect ? <span class="str">"PASS"</span> : <span class="str">"FAIL"</span>);</pre><pre><span class="lnum">  26:  </span>}</pre></div></div><!-- end of code area -->
+<div class="csharpcode"><pre class="alt"><span class="lnum">   1:  </span><span class="rem">// 準備 object context</span></pre><pre><span class="lnum">   2:  </span><span class="kwrd">using</span> (Membership ctx = <span class="kwrd">new</span> Membership())</pre><pre class="alt"><span class="lnum">   3:  </span>{</pre><pre><span class="lnum">   4:  </span>    <span class="kwrd">string</span> passwordText = <span class="str">"12345"</span>;</pre><pre class="alt"><span class="lnum">   5:  </span>    User curUser = ctx.GetObjectByKey(<span class="kwrd">new</span> EntityKey(<span class="str">"Membership.UserSet"</span>, <span class="str">"ID"</span>, <span class="str">"andrew"</span>)) <span class="kwrd">as</span> User;</pre><pre><span class="lnum">   6:  </span>    <span class="kwrd">bool</span> isPasswordCorrect = <span class="kwrd">true</span>;</pre><pre class="alt"><span class="lnum">   7:  </span>    {</pre><pre><span class="lnum">   8:  </span>        <span class="kwrd">byte</span>[] passwordTextHash = HashAlgorithm.Create(<span class="str">"MD5"</span>).ComputeHash(Encoding.Unicode.GetBytes(passwordText));</pre><pre class="alt"><span class="lnum">   9:  </span>        <span class="kwrd">if</span> (passwordTextHash.Length != curUser.PasswordHash.Length)</pre><pre><span class="lnum">  10:  </span>        {</pre><pre class="alt"><span class="lnum">  11:  </span>            isPasswordCorrect = <span class="kwrd">false</span>;</pre><pre><span class="lnum">  12:  </span>        }</pre><pre class="alt"><span class="lnum">  13:  </span>        <span class="kwrd">else</span></pre><pre><span class="lnum">  14:  </span>        {</pre><pre class="alt"><span class="lnum">  15:  </span>            <span class="kwrd">for</span> (<span class="kwrd">int</span> pos = 0; pos &lt; curUser.PasswordHash.Length; pos++)</pre><pre><span class="lnum">  16:  </span>            {</pre><pre class="alt"><span class="lnum">  17:  </span>                <span class="kwrd">if</span> (passwordTextHash[pos] != curUser.PasswordHash[pos])</pre><pre><span class="lnum">  18:  </span>                {</pre><pre class="alt"><span class="lnum">  19:  </span>                    isPasswordCorrect = <span class="kwrd">false</span>;</pre><pre><span class="lnum">  20:  </span>                    <span class="kwrd">break</span>;</pre><pre class="alt"><span class="lnum">  21:  </span>                }</pre><pre><span class="lnum">  22:  </span>            }</pre><pre class="alt"><span class="lnum">  23:  </span>        }</pre><pre><span class="lnum">  24:  </span>    }</pre><pre class="alt"><span class="lnum">  25:  </span>    Console.WriteLine(<span class="str">"Password ({0}) check: {1}"</span>, passwordText, isPasswordCorrect ? <span class="str">"PASS"</span> : <span class="str">"FAIL"</span>);</pre><pre><span class="lnum">  26:  </span>}</pre></div></div><!-- end of code area --></div>
 <p>&nbsp;</p>
 <p>這樣的 User 類別設計有什麼問題? 我列幾個我認為設計上不妥的地方:</p>
 <ol>
@@ -96,52 +97,55 @@ ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
             {
                 this.PasswordHash = this.ComputePasswordHash(value);
             }
-        }</pre></div></div></p>
+        }
 
-<p>        public bool ComparePassword(string passwordText)<br />
-        {<br />
-            byte[] hash = this.ComputePasswordHash(passwordText);</p>
+        public bool ComparePassword(string passwordText)
+        {
+            byte[] hash = this.ComputePasswordHash(passwordText);
 
-<p>            // compare hash<br />
-            if (this.PasswordHash == null) return false;<br />
-            if (hash.Length != this.PasswordHash.Length) return false;<br />
-            for (int pos = 0; pos &lt; hash.Length; pos++)<br />
-            {<br />
-                if (hash[pos] != this.PasswordHash[pos]) return false;<br />
-            }<br />
-            return true;<br />
-        }</p>
+            // compare hash
+            if (this.PasswordHash == null) return false;
+            if (hash.Length != this.PasswordHash.Length) return false;
+            for (int pos = 0; pos &lt; hash.Length; pos++)
+            {
+                if (hash[pos] != this.PasswordHash[pos]) return false;
+            }
+            return true;
+        }
 
-<p>        public GenderCodeEnum Gender<br />
-        {<br />
-            get<br />
-            {<br />
-                return (GenderCodeEnum)this.GenderCode;<br />
-            }<br />
-        }</p>
+        public GenderCodeEnum Gender
+        {
+            get
+            {
+                return (GenderCodeEnum)this.GenderCode;
+            }
+        }
 
-<p>        partial void OnSSNChanging(string value)<br />
-        {<br />
-            // ToDo: check ssn rules.</p>
+        partial void OnSSNChanging(string value)
+        {
+            // ToDo: check ssn rules.
 
-<p>            // sync gender code<br />
-            this.GenderCode = int.Parse(value.Substring(1, 1));<br />
-        }</p>
+            // sync gender code
+            this.GenderCode = int.Parse(value.Substring(1, 1));
+        }
 
-<p>        private byte[] ComputePasswordHash(string password)<br />
-        {<br />
-            if (string.IsNullOrEmpty(password) == true) return null;<br />
-            return HashAlgorithm.Create("MD5").ComputeHash(Encoding.Unicode.GetBytes(password));<br />
-        }<br />
-    }</p>
 
-<p>    public enum GenderCodeEnum : int<br />
-    {<br />
-        FEMALE = 0,<br />
-        MALE = 1<br />
+
+
+        private byte[] ComputePasswordHash(string password)
+        {
+            if (string.IsNullOrEmpty(password) == true) return null;
+            return HashAlgorithm.Create("MD5").ComputeHash(Encoding.Unicode.GetBytes(password));
+        }
     }
+
+    public enum GenderCodeEnum : int
+    {
+        FEMALE = 0,
+        MALE = 1
+    }</pre></div>
 <div style="border-right: 1px solid; border-top: 1px solid; border-left: 1px solid; border-bottom: 1px solid">
-<div class="csharpcode"><pre class="alt"><span class="lnum">   1:  </span><span class="kwrd">public</span> <span class="kwrd">partial</span> <span class="kwrd">class</span> User</pre><pre><span class="lnum">   2:  </span>{</pre><pre class="alt"><span class="lnum">   3:  </span>    <span class="kwrd">public</span> <span class="kwrd">string</span> Password</pre><pre><span class="lnum">   4:  </span>    {</pre><pre class="alt"><span class="lnum">   5:  </span>        set</pre><pre><span class="lnum">   6:  </span>        {</pre><pre class="alt"><span class="lnum">   7:  </span>            <span class="kwrd">this</span>.PasswordHash = <span class="kwrd">this</span>.ComputePasswordHash(<span class="kwrd">value</span>);</pre><pre><span class="lnum">   8:  </span>        }</pre><pre class="alt"><span class="lnum">   9:  </span>    }</pre><pre><span class="lnum">  10:  </span>    <span class="kwrd">public</span> <span class="kwrd">bool</span> ComparePassword(<span class="kwrd">string</span> passwordText)</pre><pre class="alt"><span class="lnum">  11:  </span>    {</pre><pre><span class="lnum">  12:  </span>        <span class="kwrd">byte</span>[] hash = <span class="kwrd">this</span>.ComputePasswordHash(passwordText);</pre><pre class="alt"><span class="lnum">  13:  </span>        <span class="rem">// compare hash</span></pre><pre><span class="lnum">  14:  </span>        <span class="kwrd">if</span> (<span class="kwrd">this</span>.PasswordHash == <span class="kwrd">null</span>) <span class="kwrd">return</span> <span class="kwrd">false</span>;</pre><pre class="alt"><span class="lnum">  15:  </span>        <span class="kwrd">if</span> (hash.Length != <span class="kwrd">this</span>.PasswordHash.Length) <span class="kwrd">return</span> <span class="kwrd">false</span>;</pre><pre><span class="lnum">  16:  </span>        <span class="kwrd">for</span> (<span class="kwrd">int</span> pos = 0; pos &lt; hash.Length; pos++)</pre><pre class="alt"><span class="lnum">  17:  </span>        {</pre><pre><span class="lnum">  18:  </span>            <span class="kwrd">if</span> (hash[pos] != <span class="kwrd">this</span>.PasswordHash[pos]) <span class="kwrd">return</span> <span class="kwrd">false</span>;</pre><pre class="alt"><span class="lnum">  19:  </span>        }</pre><pre><span class="lnum">  20:  </span>        <span class="kwrd">return</span> <span class="kwrd">true</span>;</pre><pre class="alt"><span class="lnum">  21:  </span>    }</pre><pre><span class="lnum">  22:  </span>    <span class="kwrd">public</span> GenderCodeEnum Gender</pre><pre class="alt"><span class="lnum">  23:  </span>    {</pre><pre><span class="lnum">  24:  </span>        get</pre><pre class="alt"><span class="lnum">  25:  </span>        {</pre><pre><span class="lnum">  26:  </span>            <span class="kwrd">return</span> (GenderCodeEnum)<span class="kwrd">this</span>.GenderCode;</pre><pre class="alt"><span class="lnum">  27:  </span>        }</pre><pre><span class="lnum">  28:  </span>    }</pre><pre class="alt"><span class="lnum">  29:  </span>    <span class="kwrd">partial</span> <span class="kwrd">void</span> OnSSNChanging(<span class="kwrd">string</span> <span class="kwrd">value</span>)</pre><pre><span class="lnum">  30:  </span>    {</pre><pre class="alt"><span class="lnum">  31:  </span>        <span class="rem">// ToDo: check ssn rules.</span></pre><pre><span class="lnum">  32:  </span>        <span class="rem">// sync gender code</span></pre><pre class="alt"><span class="lnum">  33:  </span>        <span class="kwrd">this</span>.GenderCode = <span class="kwrd">int</span>.Parse(<span class="kwrd">value</span>.Substring(1, 1));</pre><pre><span class="lnum">  34:  </span>    }</pre><pre class="alt"><span class="lnum">  35:  </span>    <span class="kwrd">private</span> <span class="kwrd">byte</span>[] ComputePasswordHash(<span class="kwrd">string</span> password)</pre><pre><span class="lnum">  36:  </span>    {</pre><pre class="alt"><span class="lnum">  37:  </span>        <span class="kwrd">if</span> (<span class="kwrd">string</span>.IsNullOrEmpty(password) == <span class="kwrd">true</span>) <span class="kwrd">return</span> <span class="kwrd">null</span>;</pre><pre><span class="lnum">  38:  </span>        <span class="kwrd">return</span> HashAlgorithm.Create(<span class="str">"MD5"</span>).ComputeHash(Encoding.Unicode.GetBytes(password));</pre><pre class="alt"><span class="lnum">  39:  </span>    }</pre><pre><span class="lnum">  40:  </span>}</pre><pre class="alt"><span class="lnum">  41:  </span><span class="kwrd">public</span> <span class="kwrd">enum</span> GenderCodeEnum : <span class="kwrd">int</span></pre><pre><span class="lnum">  42:  </span>{</pre><pre class="alt"><span class="lnum">  43:  </span>    FEMALE = 0,</pre><pre><span class="lnum">  44:  </span>    MALE = 1</pre><pre class="alt"><span class="lnum">  45:  </span>}</pre></div></div><!-- end of code area -->
+<div class="csharpcode"><pre class="alt"><span class="lnum">   1:  </span><span class="kwrd">public</span> <span class="kwrd">partial</span> <span class="kwrd">class</span> User</pre><pre><span class="lnum">   2:  </span>{</pre><pre class="alt"><span class="lnum">   3:  </span>    <span class="kwrd">public</span> <span class="kwrd">string</span> Password</pre><pre><span class="lnum">   4:  </span>    {</pre><pre class="alt"><span class="lnum">   5:  </span>        set</pre><pre><span class="lnum">   6:  </span>        {</pre><pre class="alt"><span class="lnum">   7:  </span>            <span class="kwrd">this</span>.PasswordHash = <span class="kwrd">this</span>.ComputePasswordHash(<span class="kwrd">value</span>);</pre><pre><span class="lnum">   8:  </span>        }</pre><pre class="alt"><span class="lnum">   9:  </span>    }</pre><pre><span class="lnum">  10:  </span>    <span class="kwrd">public</span> <span class="kwrd">bool</span> ComparePassword(<span class="kwrd">string</span> passwordText)</pre><pre class="alt"><span class="lnum">  11:  </span>    {</pre><pre><span class="lnum">  12:  </span>        <span class="kwrd">byte</span>[] hash = <span class="kwrd">this</span>.ComputePasswordHash(passwordText);</pre><pre class="alt"><span class="lnum">  13:  </span>        <span class="rem">// compare hash</span></pre><pre><span class="lnum">  14:  </span>        <span class="kwrd">if</span> (<span class="kwrd">this</span>.PasswordHash == <span class="kwrd">null</span>) <span class="kwrd">return</span> <span class="kwrd">false</span>;</pre><pre class="alt"><span class="lnum">  15:  </span>        <span class="kwrd">if</span> (hash.Length != <span class="kwrd">this</span>.PasswordHash.Length) <span class="kwrd">return</span> <span class="kwrd">false</span>;</pre><pre><span class="lnum">  16:  </span>        <span class="kwrd">for</span> (<span class="kwrd">int</span> pos = 0; pos &lt; hash.Length; pos++)</pre><pre class="alt"><span class="lnum">  17:  </span>        {</pre><pre><span class="lnum">  18:  </span>            <span class="kwrd">if</span> (hash[pos] != <span class="kwrd">this</span>.PasswordHash[pos]) <span class="kwrd">return</span> <span class="kwrd">false</span>;</pre><pre class="alt"><span class="lnum">  19:  </span>        }</pre><pre><span class="lnum">  20:  </span>        <span class="kwrd">return</span> <span class="kwrd">true</span>;</pre><pre class="alt"><span class="lnum">  21:  </span>    }</pre><pre><span class="lnum">  22:  </span>    <span class="kwrd">public</span> GenderCodeEnum Gender</pre><pre class="alt"><span class="lnum">  23:  </span>    {</pre><pre><span class="lnum">  24:  </span>        get</pre><pre class="alt"><span class="lnum">  25:  </span>        {</pre><pre><span class="lnum">  26:  </span>            <span class="kwrd">return</span> (GenderCodeEnum)<span class="kwrd">this</span>.GenderCode;</pre><pre class="alt"><span class="lnum">  27:  </span>        }</pre><pre><span class="lnum">  28:  </span>    }</pre><pre class="alt"><span class="lnum">  29:  </span>    <span class="kwrd">partial</span> <span class="kwrd">void</span> OnSSNChanging(<span class="kwrd">string</span> <span class="kwrd">value</span>)</pre><pre><span class="lnum">  30:  </span>    {</pre><pre class="alt"><span class="lnum">  31:  </span>        <span class="rem">// ToDo: check ssn rules.</span></pre><pre><span class="lnum">  32:  </span>        <span class="rem">// sync gender code</span></pre><pre class="alt"><span class="lnum">  33:  </span>        <span class="kwrd">this</span>.GenderCode = <span class="kwrd">int</span>.Parse(<span class="kwrd">value</span>.Substring(1, 1));</pre><pre><span class="lnum">  34:  </span>    }</pre><pre class="alt"><span class="lnum">  35:  </span>    <span class="kwrd">private</span> <span class="kwrd">byte</span>[] ComputePasswordHash(<span class="kwrd">string</span> password)</pre><pre><span class="lnum">  36:  </span>    {</pre><pre class="alt"><span class="lnum">  37:  </span>        <span class="kwrd">if</span> (<span class="kwrd">string</span>.IsNullOrEmpty(password) == <span class="kwrd">true</span>) <span class="kwrd">return</span> <span class="kwrd">null</span>;</pre><pre><span class="lnum">  38:  </span>        <span class="kwrd">return</span> HashAlgorithm.Create(<span class="str">"MD5"</span>).ComputeHash(Encoding.Unicode.GetBytes(password));</pre><pre class="alt"><span class="lnum">  39:  </span>    }</pre><pre><span class="lnum">  40:  </span>}</pre><pre class="alt"><span class="lnum">  41:  </span><span class="kwrd">public</span> <span class="kwrd">enum</span> GenderCodeEnum : <span class="kwrd">int</span></pre><pre><span class="lnum">  42:  </span>{</pre><pre class="alt"><span class="lnum">  43:  </span>    FEMALE = 0,</pre><pre><span class="lnum">  44:  </span>    MALE = 1</pre><pre class="alt"><span class="lnum">  45:  </span>}</pre></div></div><!-- end of code area --></div>
 <p>&nbsp;</p>
 <p>被隱藏起來的 PasswordHash, 公開的介面就用 Password 的 Setter 跟 ComparePassword( ) method 取代，明確的用程式碼告訴所有要用它的 programmer:</p>
 <p>"密碼只准你寫，不准你讀 (read only)... 只告訴你密碼對不對, 不會讓你把真正的密碼拿出去"</p>
@@ -152,19 +156,19 @@ ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 <div style="display: none"><pre id="codeData" style="display: none">            // 準備 object context
             using (Membership ctx = new Membership())
             {
-                User newUser = new User();</pre></div></div></p>
+                User newUser = new User();
 
-<p>                newUser.ID = "andrew";<br />
-                newUser.PasswordHint = "My Password: 12345";<br />
-                newUser.Password = "12345";<br />
-                newUser.SSN = "A123456789";</p>
+                newUser.ID = "andrew";
+                newUser.PasswordHint = "My Password: 12345";
+                newUser.Password = "12345";
+                newUser.SSN = "A123456789";
 
-<p>                ctx.AddToUserSet(newUser);<br />
-                ctx.SaveChanges();<br />
+                ctx.AddToUserSet(newUser);
+                ctx.SaveChanges();
             }
-
+</pre></div>
 <div style="border-right: 1px solid; border-top: 1px solid; border-left: 1px solid; border-bottom: 1px solid">
-<div class="csharpcode"><pre class="alt"><span class="lnum">   1:  </span><span class="rem">// 準備 object context</span></pre><pre><span class="lnum">   2:  </span><span class="kwrd">using</span> (Membership ctx = <span class="kwrd">new</span> Membership())</pre><pre class="alt"><span class="lnum">   3:  </span>{</pre><pre><span class="lnum">   4:  </span>    User newUser = <span class="kwrd">new</span> User();</pre><pre class="alt"><span class="lnum">   5:  </span>    newUser.ID = <span class="str">"andrew"</span>;</pre><pre><span class="lnum">   6:  </span>    newUser.PasswordHint = <span class="str">"My Password: 12345"</span>;</pre><pre class="alt"><span class="lnum">   7:  </span>    newUser.Password = <span class="str">"12345"</span>;</pre><pre><span class="lnum">   8:  </span>    newUser.SSN = <span class="str">"A123456789"</span>;</pre><pre class="alt"><span class="lnum">   9:  </span>    ctx.AddToUserSet(newUser);</pre><pre><span class="lnum">  10:  </span>    ctx.SaveChanges();</pre><pre class="alt"><span class="lnum">  11:  </span>}</pre></div></div><!-- end of code area -->
+<div class="csharpcode"><pre class="alt"><span class="lnum">   1:  </span><span class="rem">// 準備 object context</span></pre><pre><span class="lnum">   2:  </span><span class="kwrd">using</span> (Membership ctx = <span class="kwrd">new</span> Membership())</pre><pre class="alt"><span class="lnum">   3:  </span>{</pre><pre><span class="lnum">   4:  </span>    User newUser = <span class="kwrd">new</span> User();</pre><pre class="alt"><span class="lnum">   5:  </span>    newUser.ID = <span class="str">"andrew"</span>;</pre><pre><span class="lnum">   6:  </span>    newUser.PasswordHint = <span class="str">"My Password: 12345"</span>;</pre><pre class="alt"><span class="lnum">   7:  </span>    newUser.Password = <span class="str">"12345"</span>;</pre><pre><span class="lnum">   8:  </span>    newUser.SSN = <span class="str">"A123456789"</span>;</pre><pre class="alt"><span class="lnum">   9:  </span>    ctx.AddToUserSet(newUser);</pre><pre><span class="lnum">  10:  </span>    ctx.SaveChanges();</pre><pre class="alt"><span class="lnum">  11:  </span>}</pre></div></div><!-- end of code area --></div>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 <div><b>檢查密碼是否正確</b><span class="copycode" title="copy code into clipboard.">[copy code]</span>
@@ -172,17 +176,17 @@ ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
             using (Membership ctx = new Membership())
             {
                 EntityKey key = new EntityKey("Membership.UserSet", "ID", "andrew");
-                User user = ctx.GetObjectByKey(key) as User;</pre></div></div></p>
+                User user = ctx.GetObjectByKey(key) as User;
 
-<p>                // 要比對的密碼<br />
-                string passwordText = "123456";<br />
-                bool isPasswordCorrect = user.ComparePassword(passwordText);</p>
+                // 要比對的密碼
+                string passwordText = "123456";
+                bool isPasswordCorrect = user.ComparePassword(passwordText);
 
-<p>                Console.WriteLine("Password ({0}) check: {1}", passwordText, isPasswordCorrect ? "PASS" : "FAIL");<br />
+                Console.WriteLine("Password ({0}) check: {1}", passwordText, isPasswordCorrect ? "PASS" : "FAIL");
             }
-
+</pre></div>
 <div style="border-right: 1px solid; border-top: 1px solid; border-left: 1px solid; border-bottom: 1px solid">
-<div class="csharpcode"><pre class="alt"><span class="lnum">   1:  </span><span class="rem">// 準備 object context</span></pre><pre><span class="lnum">   2:  </span><span class="kwrd">using</span> (Membership ctx = <span class="kwrd">new</span> Membership())</pre><pre class="alt"><span class="lnum">   3:  </span>{</pre><pre><span class="lnum">   4:  </span>    EntityKey key = <span class="kwrd">new</span> EntityKey(<span class="str">"Membership.UserSet"</span>, <span class="str">"ID"</span>, <span class="str">"andrew"</span>);</pre><pre class="alt"><span class="lnum">   5:  </span>    User user = ctx.GetObjectByKey(key) <span class="kwrd">as</span> User;</pre><pre><span class="lnum">   6:  </span>    <span class="rem">// 要比對的密碼</span></pre><pre class="alt"><span class="lnum">   7:  </span>    <span class="kwrd">string</span> passwordText = <span class="str">"123456"</span>;</pre><pre><span class="lnum">   8:  </span>    <span class="kwrd">bool</span> isPasswordCorrect = user.ComparePassword(passwordText);</pre><pre class="alt"><span class="lnum">   9:  </span>    Console.WriteLine(<span class="str">"Password ({0}) check: {1}"</span>, passwordText, isPasswordCorrect ? <span class="str">"PASS"</span> : <span class="str">"FAIL"</span>);</pre><pre><span class="lnum">  10:  </span>}</pre></div></div><!-- end of code area -->
+<div class="csharpcode"><pre class="alt"><span class="lnum">   1:  </span><span class="rem">// 準備 object context</span></pre><pre><span class="lnum">   2:  </span><span class="kwrd">using</span> (Membership ctx = <span class="kwrd">new</span> Membership())</pre><pre class="alt"><span class="lnum">   3:  </span>{</pre><pre><span class="lnum">   4:  </span>    EntityKey key = <span class="kwrd">new</span> EntityKey(<span class="str">"Membership.UserSet"</span>, <span class="str">"ID"</span>, <span class="str">"andrew"</span>);</pre><pre class="alt"><span class="lnum">   5:  </span>    User user = ctx.GetObjectByKey(key) <span class="kwrd">as</span> User;</pre><pre><span class="lnum">   6:  </span>    <span class="rem">// 要比對的密碼</span></pre><pre class="alt"><span class="lnum">   7:  </span>    <span class="kwrd">string</span> passwordText = <span class="str">"123456"</span>;</pre><pre><span class="lnum">   8:  </span>    <span class="kwrd">bool</span> isPasswordCorrect = user.ComparePassword(passwordText);</pre><pre class="alt"><span class="lnum">   9:  </span>    Console.WriteLine(<span class="str">"Password ({0}) check: {1}"</span>, passwordText, isPasswordCorrect ? <span class="str">"PASS"</span> : <span class="str">"FAIL"</span>);</pre><pre><span class="lnum">  10:  </span>}</pre></div></div><!-- end of code area --></div>
 <p>&nbsp;</p>
 <p>修改過的程式簡潔多了。不過比少打幾行程式碼更重要的是，它的邏輯更清楚，更不容易出錯。如果沒有妥善的處理封裝性的問題，可以想像寫出來的程式一定亂七八糟。要嘛不正確的資料都會被寫進 DB，不然就是 DB 有作適當的防範，但是程式沒有作好，最後就是到處都出現 SqlException ...</p>
-<p>這裡只是簡單示範一下 Entity Framework 如何替資料提供封裝的特性，後續的文章會繼續示範 Entity Framework 如何能把 DBMS 的資料，進一步的應用到物件技術的繼承及多型等特性。敬請期待下集 :D</p></p>
+<p>這裡只是簡單示範一下 Entity Framework 如何替資料提供封裝的特性，後續的文章會繼續示範 Entity Framework 如何能把 DBMS 的資料，進一步的應用到物件技術的繼承及多型等特性。敬請期待下集 :D</p>

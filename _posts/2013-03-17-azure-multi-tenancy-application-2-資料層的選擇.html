@@ -2,15 +2,16 @@
 layout: post
 title: "[Azure] Multi-Tenancy Application #2, 資料層的選擇"
 categories:
-- AZURE
-- MSDN
-- SQL
+- "AZURE"
+- "MSDN"
+- "SQL"
 - "技術隨筆"
-tags: []
+tags: ["AZURE","MSDN","SQL","技術隨筆"]
 published: true
 comments: true
+permalink: "/2013/03/17/azure-multi-tenancy-application-2-資料層的選擇/"
 ---
-<p><p>&nbsp;</p>
+<p>&nbsp;</p>
 <p>其實上一篇設計概念還沒寫完，只不過很晚了想睡覺就先貼了，本篇繼續..</p>
 <p>之前介紹 MSDN 的那篇<a href="http://msdn.microsoft.com/en-us/library/aa479086.aspx" target="_blank">文章</a>，作者很精確的分析了資料層面的三種設計方式。不過仔細研究之後，真正能搬上台面的，也只有最後一種 &ldquo;Shared Schema&rdquo; 而已。我從系統實際運作的角度，來分別考量這三種方式的可行性，各位就知道我為何這樣說了..。上篇介紹了各種可行的方案，這篇則會說明我認為的最佳方案。</p>
 <p>我的看法很簡單，除非你的 Multi-Tenancy 的 &ldquo;Tenancy&rdquo; 規模只有幾十個的數量，否則 Separated DB / Separated Schema 都不適用，因為這兩種方式都是依賴把資料放在不同的 DB 或是 TABLE，來達到隔離的目的。並不是說這樣不好，而是這些都是 "過渡" 的作法，讓傳統的 application 不需要大符修改就能化身變為 Multi-Tenancy 的應用系統。而且 database / table 的數量都是有限制的，無法無限制的擴張。同時，以系統設計的角度來看，在系統執行的過程中，動態去建立 DB 或是建立 TABLE 也不是個很好的作法，在我眼裡都會覺的這是禁忌 XD。</p>
@@ -126,4 +127,4 @@ comments: true
 <p>不過，實際的狀況其實沒這麼嚴重。Azure Table Storage 極為強大的 scalability 可以彌補查詢上的不足，平行的查詢，及針對巨量資料的設計，都是你在處理巨量資料的武器，而這些是 RDBMS 所無法提供的。</p>
 <p>&nbsp;</p>
 <p>寫到這裡，我簡單下個結論。Azure Table Storage, 是個很棒的 &ldquo;storage&rdquo;, 有絕佳的延申及擴充能力。能夠輕易的儲存及處理巨量資料，不論是資料大小或是資料筆數都一樣。不過它畢竟不是 "R"DBMS，而是 NO SQL這一類的 storage, 因此在執行覆雜的 QUERY 上不是 RDBMS 的對手。一些統計方面的功能 (如 SUM, COUNT, AVERAGE &hellip;. 等等) 就更不用說了。這部份得靠 ORM、Linq 及你的程式來補足。</p>
-<p>而 Azure Table Storage 的規劃就將 partition 的機制放進去了，拿來做 Multi-Tenancy 的資料切割機制真是絕配! 跟本就是為了這樣的應用而設計的... 下一篇我會示範實際的程式碼，用 Azure Table Storage 來實作 Multi-Tenancy Applicaion 的 Data Layer ..</p></p>
+<p>而 Azure Table Storage 的規劃就將 partition 的機制放進去了，拿來做 Multi-Tenancy 的資料切割機制真是絕配! 跟本就是為了這樣的應用而設計的... 下一篇我會示範實際的程式碼，用 Azure Table Storage 來實作 Multi-Tenancy Applicaion 的 Data Layer ..</p>

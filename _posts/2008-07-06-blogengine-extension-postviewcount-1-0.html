@@ -3,21 +3,22 @@ layout: post
 title: "[BlogEngine Extension] PostViewCount 1.0"
 categories:
 - ".NET"
-- ASP.NET
-- BlogEngine Extension
-- BlogEngine.NET
+- "ASP.NET"
+- "BlogEngine Extension"
+- "BlogEngine.NET"
 - "作品集"
 - "技術隨筆"
-tags: []
+tags: [".NET","ASP.NET","BlogEngine Extension","BlogEngine.NET","作品集","技術隨筆"]
 published: true
 comments: true
+permalink: "/2008/07/06/blogengine-extension-postviewcount-1-0/"
 ---
-<p><p>
+<p>
 這篇拖好久了，本來上禮拜要寫，結果正好碰到 <a href="http://www.codeplex.com/blogengine/Release/ProjectReleases.aspx?ReleaseId=9451" target="_blank">BlogEngine 1.4 RELEASE</a>，就一直拖到現在...。之前找到一個給 BlogEngine 用的 <a href="http://mosesofegypt.net/?tag=/blogengine.net+extensions" target="_blank">Counter Extension</a>，以功能來說還不錯用，不過用久了就開始不滿足了。正好翻到<a href="http://rtur.net/blog/post/2008/07/04/Writing-extensions-for-BlogEngine-14-(part-1).aspx" target="_blank">這篇教學文章</a>，算是官方文章了吧 (BlogEngine 作者之一寫的教學文)? 所以就動起自己寫的念頭。舊的其實沒什麼不好，不過缺了這幾項我想要的功能: 
 </p>
 <ol>
 	<li>只有計 Total Count (謎: 不然你要 counter 記什麼?) </li>
-	<li>資料檔的結構及 I/O 的設計有點 Orz... <br />
+	<li>資料檔的結構及 I/O 的設計有點 Orz... 
 	<ol>
 		<li>讀寫 XML 的 CODE 寫的很... Orz </li>
 		<li>沒有處理同時讀寫的問題 (後面寫的資料可能會蓋掉前面的，我的點閱率不知道少了幾百次 :D) </li>
@@ -406,5 +407,4 @@ Provider 依賴的是事先定義好的 ProviderBase (abstract class) 類別。�
 </p>
 <p>
 檔案下載: <a href="/wp-content/be-files/PostViewCounter.cs" title="http://columns.chicken-house.net/wp-content/be-files/PostViewCounter.cs">http://columns.chicken-house.net/wp-content/be-files/PostViewCounter.cs</a> 
-</p>
 </p>

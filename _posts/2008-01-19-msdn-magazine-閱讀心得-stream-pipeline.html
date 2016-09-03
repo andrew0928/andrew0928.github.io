@@ -1,14 +1,15 @@
 ---
 layout: post
-title: 'MSDN Magazine 閱讀心得: Stream Pipeline'
+title: "MSDN Magazine 閱讀心得: Stream Pipeline"
 categories:
 - ".NET"
 - "多執行緒"
-tags: []
+tags: [".NET","多執行緒"]
 published: true
 comments: true
+permalink: "/2008/01/19/msdn-magazine-閱讀心得-stream-pipeline/"
 ---
-<p><p>前一陣子研究了幾種可以在 .NET 善用多核心的作法之後, 最近剛好又在在 MSDN Magazine 看到這篇不錯的文章: <a title="http://msdn.microsoft.com/msdnmag/issues/08/02/NETMatters/default.aspx" href="http://msdn.microsoft.com/msdnmag/issues/08/02/NETMatters/default.aspx">http://msdn.microsoft.com/msdnmag/issues/08/02/NETMatters/default.aspx</a> 裡面點出了另一種作法: 串流管線 (Stream Pipeline)...</p>
+<p>前一陣子研究了幾種可以在 .NET 善用多核心的作法之後, 最近剛好又在在 MSDN Magazine 看到這篇不錯的文章: <a title="http://msdn.microsoft.com/msdnmag/issues/08/02/NETMatters/default.aspx" href="http://msdn.microsoft.com/msdnmag/issues/08/02/NETMatters/default.aspx">http://msdn.microsoft.com/msdnmag/issues/08/02/NETMatters/default.aspx</a> 裡面點出了另一種作法: 串流管線 (Stream Pipeline)...</p>
 <p>如果你是以多核心能有效利用為目標, 那這篇對你可能沒什麼用... 不過如果你要處理的資料必需經過幾個 Stream 處理的話, 這篇就派的上用場. 這篇是以一個常見的例子為起點: 資料壓縮 + 加密...</p>
 <p>在 .NET 要壓縮資料很簡單, 只要把資料寫到 GzipStream 就好, 建立 GzipStream 時再指定它要串接的 FileStream 就可以寫到檔案了 (串 Network 就可以透過網路傳出去... etc), 而加密則是用 CryptoStream, 也是一樣的用法, 可以串接其它的 Stream ...</p>
 <p>正好利用這個特性, 資料要壓縮又要加密, 可以這樣作:</p>
@@ -34,4 +35,4 @@ comments: true
 <li>如果我有足夠的人手, 但是工作的特質不見得能切成這麼多階段, 因此擴充性有限, 以此例來說, 你用四核CPU就派不上用處了, 仍然只能分成兩階來處理.&nbsp; </li>
 <li>pipeline 啟動及結束的成本較高. 一開始只有前面階段有工作做, 最後只有後面階段有工作做. pipeline 切越多 stage 問題就越嚴重. 這在 CPU 的架構設計上比較常在探討這問題, 就是管線清空後造成的效能折損. 這也是為什麼常聽到園區停電一分鐘, 台積電就會損失幾億的原因... 因為它的生產線很長, 停掉生產線跟啟動生產線的成本高的嚇人.</li>
 </ol>
-<p>廢話講了很多, 主要是這篇文章提供了另一種平行處理的方式, 是較少看到的, 就順手把心得寫一寫了, 自己留個心得, 以後才不會忘掉 [:D]. 最後, 很豬頭的是, 整篇英文很辛苦的 K 完, 才發現有中文版的, 真是... 下次各位看文章前請先注意一下有沒有中文版 [H], 當然你英文很好的話就沒差... 哈哈..</p></p>
+<p>廢話講了很多, 主要是這篇文章提供了另一種平行處理的方式, 是較少看到的, 就順手把心得寫一寫了, 自己留個心得, 以後才不會忘掉 [:D]. 最後, 很豬頭的是, 整篇英文很辛苦的 K 完, 才發現有中文版的, 真是... 下次各位看文章前請先注意一下有沒有中文版 [H], 當然你英文很好的話就沒差... 哈哈..</p>

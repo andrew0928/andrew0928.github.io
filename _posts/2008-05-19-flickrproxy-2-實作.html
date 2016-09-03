@@ -1,15 +1,16 @@
 ---
 layout: post
-title: 'FlickrProxy #2 - 實作'
+title: "FlickrProxy #2 - 實作"
 categories:
 - ".NET"
-- ASP.NET
+- "ASP.NET"
 - "作品集"
-tags: []
+tags: [".NET","ASP.NET","作品集"]
 published: true
 comments: true
+permalink: "/2008/05/19/flickrproxy-2-實作/"
 ---
-<p><p>
+<p>
 整個進度算是很順利，初版已經可以運作了，而且也成功的套用在<a href="http://michadel.chicken-house.net/blogs/michadel/default.aspx" target="_blank">小熊子的 BLOG</a> 上... 因為過去已經有幾個<a href="/post/e4b889e5808be5a5bde794a8e79a84-ASPNET-HttpHandler.aspx" target="_blank">類似的 HttpHandler</a> 的 code 可以直接拿來改了，反而真正的瓶頸是在瞭解如何操控 FlickrNet 這個 .NET 版的 Flickr API 身上 Orz。FlickrNet 碰到的問題後面再說明，先來看一下整個 Project 的源頭: system design。 
 </p>
 <p>
@@ -27,7 +28,7 @@ comments: true
 <ol>
 	<li>接收 Http Request，如果條件符合 (確認這是要轉到 Flickr 的照片，檔案大小超過指定值... 等等) 則進行下一個步驟，否則就像一般的靜態檔案一樣，直接回傳檔案內容。 </li>
 	<li>先檢查 CACHE 是否已經有對應的資訊 ( ASP.NET 內建的 Cache, 及在暫存目錄建立的 cache file ... 等等 )，有的話直接把 Http Request 重新導向到 Flickr 上同一張照片的網址。 </li>
-	<li>如果 (2) 不成立的話，就要執行主要的動作 - 上傳到 Flickr 並且建立必要的 CACHE 資訊，然後重複 (2) 的動作。主要的動作包括: <br />
+	<li>如果 (2) 不成立的話，就要執行主要的動作 - 上傳到 Flickr 並且建立必要的 CACHE 資訊，然後重複 (2) 的動作。主要的動作包括: 
 	<ul>
 		<li>計算 HASH，建立 CACHE 檔案 </li>
 		<li>透過 Flickr API，把檔案丟到 Flickr 服務上，並且取得 URL 等資訊 </li>
@@ -553,5 +554,4 @@ CheckFlickrUrlAvailability() 是我自己寫的，就是真正連到 Flickr 判�
 </p>
 <p>
 這個 Project 告一段落，後續還是會繼續改進，不過就都是小地方的調整，一些重構及把舊的 code 整理在一起的動作而以。對程式碼有興趣的人可以再跟我聯絡。 
-</p>
 </p>

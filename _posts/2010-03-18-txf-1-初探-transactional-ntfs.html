@@ -3,16 +3,17 @@ layout: post
 title: "[TxF] #1. 初探 Transactional NTFS"
 categories:
 - ".NET"
-- C#
-- MSDN
-- SQL
-- Transactional NTFS
+- "C#"
+- "MSDN"
+- "SQL"
+- "Transactional NTFS"
 - "作業系統"
-tags: []
+tags: [".NET","C#","MSDN","SQL","Transactional NTFS","作業系統"]
 published: true
 comments: true
+permalink: "/2010/03/18/txf-1-初探-transactional-ntfs/"
 ---
-<p><p>其實想用 TxF (Transactional NTFS, 交易式的 NTFS) 已經很久了，不過老是被一些雜事卡著，到過年期間才有空好好研究一下。這篇主要是介紹而已，就不講太多 Code, 先以瞭解 TxF 是什麼，及如何善用它等等方面為主。詳細的用法，就等後面幾篇吧!</p>
+<p>其實想用 TxF (Transactional NTFS, 交易式的 NTFS) 已經很久了，不過老是被一些雜事卡著，到過年期間才有空好好研究一下。這篇主要是介紹而已，就不講太多 Code, 先以瞭解 TxF 是什麼，及如何善用它等等方面為主。詳細的用法，就等後面幾篇吧!</p>
 <p>Transactional NTFS, 中文是 "交易式NTFS"，或是常見到的縮寫 "TxF&rdquo;，早期的相關文章也有人寫 "TxFS&rdquo;。這是在 Windows Vista / 2008 推出時，首次正式提供的功能。雖然它叫作 Transactional &ldquo;<strong>NTFS</strong>&rdquo;, 實際上它並不是一個新的檔案系統，而是一組新的 API (跟原有的檔案處理 API 幾乎是一對一的對應),&nbsp; 支援你用交易的方式操作檔案。一起推出的還有 Transactional Registry (TxR)，一樣是有對應的 windows API，只不過它處理的對像是 windows registry，不是檔案...。</p>
 <p>用這種方式處理檔案的讀寫動作，有種很神奇的感覺，過去都只在資料庫裡有機會這樣用，現在檔案的處理也可以了。配合像是 DTC 這類交易協調器的支援，甚至可以把檔案的處理及資料庫的處理，通通都包裝成一個交易來進行，一但任何一個環節失敗，都可以回復到最初的狀態，感覺好像是在用 DB，而不是寫檔案... 目前官方並沒有推出 managed code 的含式庫，現在要用只有幾種選擇:</p>
 <ol>
@@ -29,35 +30,37 @@ comments: true
                 IntPtr.Zero,
                 IntPtr.Zero,
                 0, 0, 0, 0,
-                null);</pre></div></div></p>
+                null);
 
-<p>            string[] files = new string[] {<br />
-                @"c:\file1.txt",<br />
-                @"c:\file2.txt",<br />
-                @"c:\file3.txt"};</p>
+            string[] files = new string[] {
+                @"c:\file1.txt",
+                @"c:\file2.txt",
+                @"c:\file3.txt"};
 
-<p>            try<br />
-            {<br />
-                foreach (string file in files)<br />
-                {<br />
-                    // 使用支援交易的 delete file API<br />
-                    if (DeleteFileTransactedW(file, transaction) == false)<br />
-                    {<br />
-                        // 刪除失敗<br />
-                        throw new InvalidOperationException();<br />
-                    }<br />
-                }</p>
 
-<p>                // 認可交易<br />
-                CommitTransaction(transaction);<br />
-            }<br />
-            catch (Exception ex)<br />
-            {<br />
-                // 還原交易<br />
-                RollbackTransaction(transaction);<br />
-            }<br />
-            CloseHandle(transaction);
 
+            try
+            {
+                foreach (string file in files)
+                {
+                    // 使用支援交易的 delete file API
+                    if (DeleteFileTransactedW(file, transaction) == false)
+                    {
+                        // 刪除失敗
+                        throw new InvalidOperationException();
+                    }
+                }
+
+                // 認可交易
+                CommitTransaction(transaction);
+            }
+            catch (Exception ex)
+            {
+                // 還原交易
+                RollbackTransaction(transaction);
+            }
+            CloseHandle(transaction);</pre>
+</div>
 <div style="border-bottom: 1px solid; border-left: 1px solid; border-top: 1px solid; border-right: 1px solid">
 <div class="csharpcode">
 <pre class="alt"><span class="lnum">   1:  </span><span class="rem">// 建立 KTM transaction object</span></pre>
@@ -92,7 +95,7 @@ comments: true
 <pre><span class="lnum">  30:  </span>CloseHandle(transaction);</pre>
 </div>
 </div>
-<!-- end of code area -->
+<!-- end of code area --></div>
 <p>&nbsp;</p>
 <p>範例裡用到的幾個 method, 像是 CreateTransaction( ), DeleteFileTransactedW( ), CommitTransaction( ), RollbackTransaction( ) ... 等等，都是透過 P/Invoke 的方式呼叫的 win32 api... 除了用的型別不如 pure .net class library 般直覺之外，這樣的 code 也已經很簡單了，短短卅行就可以搞定...</p>
 <p>雖然這樣的 code 實在不大合我胃口，但是它畢竟是個堪用的方案... 對於 code 有潔癖的，可以考慮其它的用法。前面是最基本的 API call，如果你不滿意，MS自家的技術 <a href="http://en.wikipedia.org/wiki/Distributed_Transaction_Coordinator" target="_blank">DTC</a> (Distributed Transaction Coordinator) 當然也支援 TxF。DTC 可以提供額外的好處，就是允許你做分散式的交易管理。意思是你配合 DTC，就可以把 Local File I/O 跟 database access 整合在同一個交易範圍內。</p>
@@ -110,4 +113,4 @@ comments: true
 <li>BLOG: Because we can <br /><a title="http://blogs.msdn.com/because_we_can/archive/2005/05/18/419809.aspx" href="http://blogs.msdn.com/because_we_can/archive/2005/05/18/419809.aspx">http://blogs.msdn.com/because_we_can/archive/2005/05/18/419809.aspx</a> <br />Discussion and explanation relating to the Transactional NTFS feature coming in Longhorn, plus any other interesting anecdotes... </li>
 <li>Performance Consoderations for Transactional NTFS <br /><a title="http://msdn.microsoft.com/en-us/library/ee240893(VS.85).aspx" href="http://msdn.microsoft.com/en-us/library/ee240893(VS.85).aspx">http://msdn.microsoft.com/en-us/library/ee240893(VS.85).aspx</a> </li>
 <li>When to Use Transactional NTFS <br /><a title="http://msdn.microsoft.com/en-us/library/aa365738(VS.85).aspx" href="http://msdn.microsoft.com/en-us/library/aa365738(VS.85).aspx">http://msdn.microsoft.com/en-us/library/aa365738(VS.85).aspx</a></li>
-</ol></p>
+</ol>
