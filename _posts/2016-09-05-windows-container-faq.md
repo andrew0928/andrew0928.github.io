@@ -25,14 +25,11 @@ comments: true
 ## 參考資料
 首先，幾個適合已經懂 Docker on Linux, 卻還不熟 Windows Container 的人可以看的參考資料:
 
-1. 關於 Windows 容器 - 常見問題集
-https://msdn.microsoft.com/zh-tw/virtualization/windowscontainers/about/faq
-2. 容器主機部署 - Windows Server
-https://msdn.microsoft.com/zh-tw/virtualization/windowscontainers/deployment/deployment
+* 關於 Windows 容器 - [常見問題集](https://msdn.microsoft.com/zh-tw/virtualization/windowscontainers/about/faq)
+* 容器主機部署 - [Windows Server](https://msdn.microsoft.com/zh-tw/virtualization/windowscontainers/deployment/deployment)
 
 另外，有些有趣且深入的文章，可以先找看看有沒有你要的資訊:
-1. 细说Windows与Docker之间的趣事
-http://www.infoq.com/cn/articles/windows-and-docker
+* [细说Windows与Docker之间的趣事](http://www.infoq.com/cn/articles/windows-and-docker)
 
 ## Q1. Windows Container 跟 Docker for Windows 是一樣的東西嗎?
 > **不一樣**。Windows Container 是 Microsoft 初次在 Windows Server 2016 提供的功能 (目前還尚未 release)。
@@ -48,8 +45,9 @@ http://www.infoq.com/cn/articles/windows-and-docker
 > Image format, Registry, Cluster ... etc 等等通通都共用的產品。
 
 ## Q2. 怎麼樣才能使用 Windows Container ?
-> 支援的列表，可參考官網: https://msdn.microsoft.com/zh-tw/virtualization/windowscontainers/deployment/system_requirements
-> 唯一支援的，只有 Windows Server 2016. 目前最新公開的版本，是 2016/04 釋出的 TP5 (tech preview 5), 按照 Microsoft
+> 支援的列表，可參考官網的 [說明](https://msdn.microsoft.com/zh-tw/virtualization/windowscontainers/deployment/system_requirements)
+>
+> 目前唯一支援的，只有 Windows Server 2016. 最新公開的版本，是 2016/04 釋出的 TP5 (tech preview 5), 按照 Microsoft
 > 官方說法，2016/10 會 release. 啟用 Windows Container 有些步驟要執行，請參考:
 >
 > Windows Container 支援兩種 isolation type, 一種就是標準的 process / namespace 隔離，Windows Container 額外
@@ -65,7 +63,34 @@ http://www.infoq.com/cn/articles/windows-and-docker
 > 可以。Docker Client 是可以共用的，你甚至可以用 Linux 版的 Docker Client 來管理 Windows Server 上的 Container Engine
 
 ## Q5. Windows Container 的 Image 可以從哪裡取得?
-> 完全跟 Docker Registry 一樣。hub.docker.com 上面也可以找到 for windows 的 container image. 建議可以從 microsoft
+> 完全跟 Docker Registry 一樣。[hub.docker.com](http://hub.docker.com) 上面也可以找到 for windows 的 container image. 建議可以從 microsoft
 > 開始找，例如 microsoft/windowsservercore, microsoft/nanoserver, 或是常用的 microsoft/iis 等等都是不錯的起點。
 
-
+## Q6. 目前 Windows Server 2016 Tech Preview 5 有那些問題?
+> 除了有些狀況下，會跑出來的零星 Error 之外，其實大部分狀況都能運作良好。如果你要評估可行性，其實現在就可以開始用了。
+> 不過，windows container engine 比較頭痛的是，部分網路相關功能還未包含在 TP5 之內。(像我)想部屬微服務架構時，會被這
+> 限制搞得很煩..
+>
+> 為了協助 developer 能更容易的 deploy microservice architecture applicaion, docker 其實在這方面下了很大的功夫，包含
+> container link (在兩個 container 之間建立專屬連線, 你就不用開 port 限制 ip 還搞一堆授權的問題)，還有內建 dns resolation 等等
+> 方便的功能。很不幸的是你想在 windows container 用這些功能，大概得等 release. 我轉貼[官網的說明](https://msdn.microsoft.com/en-us/virtualization/windowscontainers/management/container_networking):
+>
+>> **Unsupported features**
+>> 
+>> The following networking features are not supported today through Docker CLI
+>> 
+>> container linking (e.g. --link)
+>> name/service-based IP resolution for containers. This will be supported soon with a servicing update
+>> default overlay network driver
+>> The following network options are not supported on Windows Docker at this time:
+>> 
+>> * --add-host
+>> * --dns
+>> * --dns-opt
+>> * --dns-search
+>> * -h, --hostname
+>> * --net-alias
+>> * --aux-address
+>> * --internal
+>> * --ip-range
+>
