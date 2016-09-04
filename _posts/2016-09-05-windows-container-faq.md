@@ -11,12 +11,13 @@ comments: true
 ---
 
 原本，Windows Container 單純就我自己研究而已，因為工作上用到的都是 ASP.NET Web Form 居多 (有部分早已轉移
-到 MVC，但是主要還是 WebForm)，加上商用軟體，用到一堆外面的第三方套件，想要藉由升級到 .NET Core, 然後直接
-享用 Docker 帶來的一堆好處，那真的是想都不用想了...
+到 MVC，但是主要還是 WebForm)，加上商用軟體，用到一堆外面的第三方套件，想要藉由升級到 [.NET Core](https://www.microsoft.com/net/core#windows), 然後直接
+享用 [Docker](https://www.docker.com/) 帶來的一堆好處，那真的是想都不用想了...
 
-不過，有幸參加了 8/27 Community Open Camp 活動，擔任一場 session speaker 後發現，其實還不少人對 Windows Containeru
-有興趣的，但是因為用的人還不多，而且到現在也還只有 Tech Preview 5 .. 使用起來還不少問題，現在切入是得花點
-時間克服障礙的
+不過，有幸參加了 [8/27 Community Open Camp](https://community-open-camp.azurewebsites.net/) 活動，擔任
+一場 [session speaker](https://channel9.msdn.com/Events/Community-Open-Camp/Community-Open-Camp-2016/ComOpenCamp018) 後發現，
+其實還不少人對 Windows Container 有興趣的，但是因為用的人還不多，而且到現在也還只有 Tech Preview 5 .. 
+使用起來還不少問題，現在切入是得花點時間克服障礙的。
 
 既然我都花時間搞懂了，我就把官方 FAQ 沒告訴你的 FAQ 紀錄一下吧~
 
@@ -44,6 +45,7 @@ comments: true
 > 之外，其他一切都沿用 Docker Eco system 的產品。包含 Docker API, Docker Client, Docker Management Protocol,
 > Image format, Registry, Cluster ... etc 等等通通都共用的產品。
 
+
 ## Q2. 怎麼樣才能使用 Windows Container ?
 > 支援的列表，可參考官網的 [說明](https://msdn.microsoft.com/zh-tw/virtualization/windowscontainers/deployment/system_requirements)
 >
@@ -54,6 +56,7 @@ comments: true
 > 支援了 Hyper-V 的隔離層級。Windows 10 Pro / Ent 版本在 2016/08 RS 更新後，就能夠使用 Hyper-V 層級的 Windows Container.
 > 安裝步驟可以參考:
 
+
 ## Q3. Windows Container 能執行現有的 Docker Container Image 嗎?
 > 不行。Windows Container 只能執行 Windows Application, 你必須準備 for windows 的 container image.
 > container image 取得的來源跟 docker 一樣，可以自己從 dockerfile build, 或是去 hub.docker.com or 其他 registry
@@ -62,9 +65,11 @@ comments: true
 ## Q4. 我能用 Docker Client 管理 Windows Container 嗎?
 > 可以。Docker Client 是可以共用的，你甚至可以用 Linux 版的 Docker Client 來管理 Windows Server 上的 Container Engine
 
+
 ## Q5. Windows Container 的 Image 可以從哪裡取得?
 > 完全跟 Docker Registry 一樣。[hub.docker.com](http://hub.docker.com) 上面也可以找到 for windows 的 container image. 建議可以從 microsoft
 > 開始找，例如 microsoft/windowsservercore, microsoft/nanoserver, 或是常用的 microsoft/iis 等等都是不錯的起點。
+
 
 ## Q6. 目前 Windows Server 2016 Tech Preview 5 有那些問題?
 > 除了有些狀況下，會跑出來的零星 Error 之外，其實大部分狀況都能運作良好。如果你要評估可行性，其實現在就可以開始用了。
