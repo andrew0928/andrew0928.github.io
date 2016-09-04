@@ -23,7 +23,7 @@ repository: andrew0928/andrew0928.github.io # ex. DONGChuan/DONGChuan.github.io
 url: http://columns.chicken-house.net
 
 permalink: /:year/:month/:day/:slug/
-
+excerpt_separator: <!--more-->
 
 
 
