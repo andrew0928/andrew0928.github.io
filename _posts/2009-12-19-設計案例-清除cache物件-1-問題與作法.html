@@ -19,6 +19,7 @@ redirect_from:
   - /post/e8a8ade8a888e6a188e4be8b-e6b885e999a4Cachee789a9e4bbb6-1-e5958fe9a18ce88887e4bd9ce6b395.aspx/
   - /columns/2009/12/19/e8a8ade8a888e6a188e4be8b-e6b885e999a4Cachee789a9e4bbb6-1-e5958fe9a18ce88887e4bd9ce6b395.aspx/
   - /columns/e8a8ade8a888e6a188e4be8b-e6b885e999a4Cachee789a9e4bbb6-1-e5958fe9a18ce88887e4bd9ce6b395.aspx/
+  - /wpid/23/
 ---
 <p>每次心裡有什麼好點子想寫出來時，第一關就卡在想不出個好標題... 想來想去的標題，怎麼看就是既不顯眼又不聳動... 果然是個老實的工程師性格 =_= ...&#160; 這次要講的，是 .NET HttpRuntime 裡提供的 Cache 物件的操作心得。這個東西我想不用我多作介紹，大家都用到爛掉了吧? 不過好用歸好用，有個老問題其實一直困擾著我很久了...</p>  <blockquote>   <p><em><strong><font color="#008000">&quot; 我該怎麼手動的把某個物件從 cache 裡移除? &quot;</font></strong></em></p> </blockquote>  <p>老實說，這問題蠻沒水準的... 老叫別人要翻 MSDN，我自己怎麼沒翻? 不不... 容我花點篇幅先說明一下問題。Cache物件，是個典型的 Dictionary 型態的應用 (雖然它沒有 implement interface: IDictionary… ), 透過 key 就可以拿到 cached item. 要從 cache 裡移除某個 item, 簡單的很，只要用 <a href="http://msdn.microsoft.com/zh-tw/library/system.web.caching.cache.remove.aspx">Remove</a> 這個 method, 一行就搞定了:</p>  <blockquote>   <div><b>從 key 移除指定的 cache item</b><span class="copycode" title="copy code into clipboard.">[copy code]</span>      <div style="display: none">       <pre style="display: none" id="codeData">HttpRuntime.Cache.Remove(“cache-key”);</pre>
     </div>
