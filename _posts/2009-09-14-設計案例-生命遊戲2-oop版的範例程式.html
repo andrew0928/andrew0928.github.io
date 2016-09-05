@@ -12,6 +12,12 @@ tags: [".NET","C#","作品集","技術隨筆","物件導向","系列文章: 生�
 published: true
 comments: true
 permalink: "/2009/09/14/設計案例-生命遊戲2-oop版的範例程式/"
+redirect_from:
+  - /columns/post/2009/09/14/e8a8ade8a888e6a188e4be8b-e7949fe591bde9818ae688b22-OOPe78988e79a84e7af84e4be8be7a88be5bc8f.aspx
+  - /post/2009/09/14/e8a8ade8a888e6a188e4be8b-e7949fe591bde9818ae688b22-OOPe78988e79a84e7af84e4be8be7a88be5bc8f.aspx
+  - /post/e8a8ade8a888e6a188e4be8b-e7949fe591bde9818ae688b22-OOPe78988e79a84e7af84e4be8be7a88be5bc8f.aspx
+  - /columns/2009/09/14/e8a8ade8a888e6a188e4be8b-e7949fe591bde9818ae688b22-OOPe78988e79a84e7af84e4be8be7a88be5bc8f.aspx
+  - /columns/e8a8ade8a888e6a188e4be8b-e7949fe591bde9818ae688b22-OOPe78988e79a84e7af84e4be8be7a88be5bc8f.aspx
 ---
 <p>還好，第一版的程式沒有難產。這版的目的很簡單，就是把題目實作出來，同時我會盡量套用物件導向的理念去設計程式的結構，而不是只把結果算出來而已。其實我一直覺的，這類生命模擬的程式，是非常適合用OOPL來實作的範例，大概OOPL所有強調的特性 (封裝、繼承、多型、動態聯結... 等等) 都用的到，算是完美的應用範例題吧! </p>  <p>不過很奇怪的，我特地 GOOGLE 了一下，不知 OOPL 高手都不屑寫這種範例還是怎樣，找到的範例程式，不管用什麼語言 (C/C++/Java/C#都有) 寫的，清一色都很沒有物件導向的 fu ... 好吧，只好自己來寫一個。</p>  <p>第一步，一定是先看看你的程式，分析出需要那些類別/物件，及它們之間的關係。比較正規的作法就是 UML 的 UseCase 了。不過這範例其實不大，我就直接跳到 Class Diagram 了 (因為VS2008剛好有現成的...)... 主要的類別有兩個: World (世界) 及 Cell (細胞)。</p>  <p>World 就是給 Cell 生活的空間，我們只訂義一個有限大小的二維空間，就一個 M x N 的棋盤這樣。而 Cell 則是一個細胞，描述單一一個細胞本身，在各種不同的條件下會有什麼反應。先貼一下 class diagram:</p>  <p>&#160;</p>  <p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" border="0" alt="image" src="/wp-content/be-files/WindowsLiveWriter/2OOP/38218C71/image.png" width="453" height="343" />&#160;&#160; <br />圖1. class diagram (World &amp; Cell)</p>  <p>老實說，這張圖還蠻乏善可陳的，World對外公開的介面，大概包含了幾個主要功能，就是取得指定座標的 Cell (GetCell), 及把目前的整個 World 狀態印出來 (ShowMaps) 的 method 而已。而 Cell 的公開介面，不外乎是它目前是活著還是死的，還有它的建構式，及呼叫後會把狀態轉移到下一次狀態的 method。</p>  <p>其它都是 World / Cell 互相溝通用，或是 Init 用的 Method / Prop, 就不多作介紹。先來看看主程式，扮演上帝的你，如何讓這堆單細胞生物，在你的世界裡活起來:</p>  
 

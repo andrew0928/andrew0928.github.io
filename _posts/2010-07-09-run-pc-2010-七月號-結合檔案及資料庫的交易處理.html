@@ -13,5 +13,11 @@ tags: [".NET","RUN! PC","Transactional NTFS","作品集","作業系統","技術�
 published: true
 comments: true
 permalink: "/2010/07/09/run-pc-2010-七月號-結合檔案及資料庫的交易處理/"
+redirect_from:
+  - /columns/post/2010/07/09/RUN!-PC-2010-e4b883e69c88e8999f-e7b590e59088e6aa94e6a188e58f8ae8b387e69699e5baabe79a84e4baa4e69893e89995e79086.aspx
+  - /post/2010/07/09/RUN!-PC-2010-e4b883e69c88e8999f-e7b590e59088e6aa94e6a188e58f8ae8b387e69699e5baabe79a84e4baa4e69893e89995e79086.aspx
+  - /post/RUN!-PC-2010-e4b883e69c88e8999f-e7b590e59088e6aa94e6a188e58f8ae8b387e69699e5baabe79a84e4baa4e69893e89995e79086.aspx
+  - /columns/2010/07/09/RUN!-PC-2010-e4b883e69c88e8999f-e7b590e59088e6aa94e6a188e58f8ae8b387e69699e5baabe79a84e4baa4e69893e89995e79086.aspx
+  - /columns/RUN!-PC-2010-e4b883e69c88e8999f-e7b590e59088e6aa94e6a188e58f8ae8b387e69699e5baabe79a84e4baa4e69893e89995e79086.aspx
 ---
 <p>&#160;</p>  <p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="IMG_3972" border="0" alt="IMG_3972" src="/wp-content/be-files/IMG_3972_1.jpg" width="660" height="447" /> </p>  <p>再次感謝編輯大人 :D，Transactional NTFS&#160; #2 也刊出來了!</p>  <p>這篇是延續<a href="/post/2010/05/05/RUNPC-2010-05.aspx" target="_blank">上一篇</a>，進一步的介紹 TxF&#160; 如何與 TransactionScope 互動，讓你可以結合檔案系統及資料庫的異動，變成單一交易的技巧。</p>  <p>由於TxF還沒有正式在.NET Framework裡支援，所以這篇最後也介紹了 AlphaFS，可以簡化應用時的障礙。AlphaFS 是一套想要取代 System.IO.* 的類別庫，它支援了許多 NTFS 的進階功能 (像是 VSS、HardLink 等) 的功能，而 TxF 也在範圍內，透過它就不用再像 <a href="/post/2010/05/05/RUNPC-2010-05.aspx" target="_blank">上一篇</a> 一樣，辛苦的用 P/Invoke 了。</p>  <p>&#160;</p>  <p>這篇提到的範例程式可以在<a href="/wp-content/be-files/RunPC-201007.zip" target="_blank">這裡</a>下載。有任何意見也歡迎在這裡留話給我 :D</p>

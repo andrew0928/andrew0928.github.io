@@ -11,6 +11,12 @@ tags: [".NET","C#","MSDN","Tips","有的沒的"]
 published: true
 comments: true
 permalink: "/2008/12/07/原來-system-xml-xmlwellformedwriter-有-bug/"
+redirect_from:
+  - /columns/post/2008/12/08/e58e9fe4be86-XmlWellFormedWriter-e4b99fe69c89-Bug-.aspx
+  - /post/2008/12/08/e58e9fe4be86-XmlWellFormedWriter-e4b99fe69c89-Bug-.aspx
+  - /post/e58e9fe4be86-XmlWellFormedWriter-e4b99fe69c89-Bug-.aspx
+  - /columns/2008/12/08/e58e9fe4be86-XmlWellFormedWriter-e4b99fe69c89-Bug-.aspx
+  - /columns/e58e9fe4be86-XmlWellFormedWriter-e4b99fe69c89-Bug-.aspx
 ---
 <p>果然沒啥人知道的 code, bug 也會比較慢被抓出來 ... 兩個小時前我才貼了找到 XmlNodeWriter 的替代品，用了一下就被我挖到一個 BUG ... @_@</p> <p>先來看看我的 Sample Code:</p> <div><b>XmlTextWriter v.s. XmlWellFormedWriter</b><span class="copycode" title="copy code into clipboard.">[copy code]</span>  <div style="display: none"><pre id="codeData" style="display: none">            // test xml text writer, correct result
             // output: &lt;?xml version="1.0" encoding="big5"?&gt;&lt;root&gt;&lt;a/&gt;&lt;a/&gt;&lt;a/&gt;&lt;a/&gt;&lt;a/&gt;&lt;/root&gt;
