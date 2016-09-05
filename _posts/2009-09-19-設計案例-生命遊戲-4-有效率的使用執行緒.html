@@ -15,11 +15,11 @@ published: true
 comments: true
 permalink: "/2009/09/19/設計案例-生命遊戲-4-有效率的使用執行緒/"
 redirect_from:
-  - /columns/post/2009/09/19/e8a8ade8a888e6a188e4be8b-e7949fe591bde9818ae688b2-4-e69c89e69588e78e87e79a84e4bdbfe794a8e59fb7e8a18ce7b792.aspx
-  - /post/2009/09/19/e8a8ade8a888e6a188e4be8b-e7949fe591bde9818ae688b2-4-e69c89e69588e78e87e79a84e4bdbfe794a8e59fb7e8a18ce7b792.aspx
-  - /post/e8a8ade8a888e6a188e4be8b-e7949fe591bde9818ae688b2-4-e69c89e69588e78e87e79a84e4bdbfe794a8e59fb7e8a18ce7b792.aspx
-  - /columns/2009/09/19/e8a8ade8a888e6a188e4be8b-e7949fe591bde9818ae688b2-4-e69c89e69588e78e87e79a84e4bdbfe794a8e59fb7e8a18ce7b792.aspx
-  - /columns/e8a8ade8a888e6a188e4be8b-e7949fe591bde9818ae688b2-4-e69c89e69588e78e87e79a84e4bdbfe794a8e59fb7e8a18ce7b792.aspx
+  - /columns/post/2009/09/19/e8a8ade8a888e6a188e4be8b-e7949fe591bde9818ae688b2-4-e69c89e69588e78e87e79a84e4bdbfe794a8e59fb7e8a18ce7b792.aspx/
+  - /post/2009/09/19/e8a8ade8a888e6a188e4be8b-e7949fe591bde9818ae688b2-4-e69c89e69588e78e87e79a84e4bdbfe794a8e59fb7e8a18ce7b792.aspx/
+  - /post/e8a8ade8a888e6a188e4be8b-e7949fe591bde9818ae688b2-4-e69c89e69588e78e87e79a84e4bdbfe794a8e59fb7e8a18ce7b792.aspx/
+  - /columns/2009/09/19/e8a8ade8a888e6a188e4be8b-e7949fe591bde9818ae688b2-4-e69c89e69588e78e87e79a84e4bdbfe794a8e59fb7e8a18ce7b792.aspx/
+  - /columns/e8a8ade8a888e6a188e4be8b-e7949fe591bde9818ae688b2-4-e69c89e69588e78e87e79a84e4bdbfe794a8e59fb7e8a18ce7b792.aspx/
 ---
 原本這篇不講執行緒，要直接跳到 OOP 多型的應用... 不過看一看 <a href="http://columns.chicken-house.net/post/e8a8ade8a888e6a188e4be8b-e7949fe591bde9818ae688b23-e69982e5ba8fe79a84e68ea7e588b6.aspx">#3</a> 自己寫的程式，實在有點看不下去... 30x30 的大小，程式跑起來就看到 903 條執行緒在那邊跑... 而看一下 CPU usage, 只有 5% 不到... 這實在不是很好看的實作範例，如果這是線上遊戲的 SERVER 程式，裡面的每個人，每個怪物等等都用一條專用的執行緒在控制他的行為的話，我看這遊戲不用太多人玩，SERVER 就掛掉了吧! 因此要繼續更貼近實際的生命模擬遊戲前，我們先來解決效能的問題，所以多安插了這篇進來 :D
 

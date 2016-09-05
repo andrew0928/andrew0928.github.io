@@ -11,11 +11,11 @@ published: true
 comments: true
 permalink: "/2010/03/23/txf-2-先作功課-熟悉-pinvoke-及-win32-檔案處理/"
 redirect_from:
-  - /columns/post/2010/03/23/TxF-2-e58588e4bd9ce58a9fe8aab2-e7869fe68289-PInvoke-e58f8a-Win32-e6aa94e6a188e89995e79086.aspx
-  - /post/2010/03/23/TxF-2-e58588e4bd9ce58a9fe8aab2-e7869fe68289-PInvoke-e58f8a-Win32-e6aa94e6a188e89995e79086.aspx
-  - /post/TxF-2-e58588e4bd9ce58a9fe8aab2-e7869fe68289-PInvoke-e58f8a-Win32-e6aa94e6a188e89995e79086.aspx
-  - /columns/2010/03/23/TxF-2-e58588e4bd9ce58a9fe8aab2-e7869fe68289-PInvoke-e58f8a-Win32-e6aa94e6a188e89995e79086.aspx
-  - /columns/TxF-2-e58588e4bd9ce58a9fe8aab2-e7869fe68289-PInvoke-e58f8a-Win32-e6aa94e6a188e89995e79086.aspx
+  - /columns/post/2010/03/23/TxF-2-e58588e4bd9ce58a9fe8aab2-e7869fe68289-PInvoke-e58f8a-Win32-e6aa94e6a188e89995e79086.aspx/
+  - /post/2010/03/23/TxF-2-e58588e4bd9ce58a9fe8aab2-e7869fe68289-PInvoke-e58f8a-Win32-e6aa94e6a188e89995e79086.aspx/
+  - /post/TxF-2-e58588e4bd9ce58a9fe8aab2-e7869fe68289-PInvoke-e58f8a-Win32-e6aa94e6a188e89995e79086.aspx/
+  - /columns/2010/03/23/TxF-2-e58588e4bd9ce58a9fe8aab2-e7869fe68289-PInvoke-e58f8a-Win32-e6aa94e6a188e89995e79086.aspx/
+  - /columns/TxF-2-e58588e4bd9ce58a9fe8aab2-e7869fe68289-PInvoke-e58f8a-Win32-e6aa94e6a188e89995e79086.aspx/
 ---
 <p>&#160;</p>  <p>其實這篇是多寫的，因為<a href="/post/TxF-1-Transactional-NTFS-e5889de9ab94e9a997.aspx" target="_blank">前一篇</a>提到的 Transactional NTFS 官方只提供 Win32 API 而已，不提供包裝好的 managed code 用的 library... 因此現階段想始用它，<a href="http://msdn.microsoft.com/en-us/library/aa446536.aspx" target="_blank">P/Invoke</a> 是逃不掉的... 這篇就先來複習一下，想要在 C# 裡呼叫 unmanaged code 該怎麼用吧。這邊的例子為了配合後面幾篇，就同樣的以檔案處理為例。</p>  <p>這篇我不想去長篇大論的討論 P/Invoke 那堆規則及語法，也不想去討論那堆 Marshal 的觀念等等... 想學好 P/Invoke 就別看我這篇了，應該去 MSDN 看... 這篇我只想交待一下該如何配合 windows api 來作檔案處理而已。因為這些是往後要用到 Transactional NTFS 必要的技巧，TxF 新的 API 都是跟 win32 標準檔案處理的 API 一一對應的，弄懂了如何用 win32 api 操作檔案，你大概就學會八成的 TxF 了... 想用 TxF ...&#160; 熟悉點 P/Invoke 是應該的...</p>  <p>&#160;</p>  <p>先從最單純的 <a href="http://msdn.microsoft.com/en-us/library/aa365239(VS.85).aspx" target="_blank">MoveFile</a> 開始吧，它沒有扯到啥 pointer 或是 handle ... 算是最單純的例子.. 先來看看這 API 原生的樣子:</p>  <p><code></code></p>  <p><code>BOOL WINAPI MoveFile( __in LPCTSTR lpExistingFileName, __in LPCTSTR lpNewFileName );</code></p>  <p>&#160;</p>  <p>&#160;</p>  <p>這 API 做啥事就不用多說了，把 lpExistingFileName 這檔案搬到 lpNewFileName 去... 搬成功還是失敗，就用 BOOL 值把結果傳回來。這時就要透過 P/Invoke 的用法，想辦法產生一個可以對應到 unmanaged code 的 C# function ... 我先把宣告方式貼出來，再來解試 code ...</p>  <div><b>P/Invoke: MoveFile</b><span class="copycode" title="copy code into clipboard.">[copy code]</span>     <div style="display: none">     <pre style="display: none" id="codeData">[DllImport(&quot;kernel32.dll&quot;)]
 static extern bool MoveFile(string lpExistingFileName, string lpNewFileName);</pre>
