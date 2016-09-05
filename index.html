@@ -3,6 +3,30 @@ layout: default
 menu: home
 css: ['index.css', 'sidebar-popular-repo.css']
 ---
+<script language='javascript'>
+var posts_map = {};
+{% for page in site.posts %}
+  {% if page.wordpress_postid %}
+    posts_map[{{ page.wordpress_postid }}] = '{{ page.url }}'
+  {% endif %}
+{% endfor %}
+
+function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+var id = getParameterByName('p');
+var url = posts_map[id];
+
+if (url) {
+  window.location.replace(url);
+} else {
+  window.location = '/'
+}
+</script>
 <section class="jumbotron">
     <div class="container">
         <h1>{{ site.title }}</h1>
