@@ -8,9 +8,6 @@ categories:
 - "技術隨筆"
 published: true
 comments: true
-redirect_from:
-  - /post/123456789/
-  - /post/123456789/my-amazing-post/
 ---
 
 原本，Windows Container 單純就我自己研究而已，因為工作上用到的都是 ASP.NET Web Form 居多 (有部分早已轉移
