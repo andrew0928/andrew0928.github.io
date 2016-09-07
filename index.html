@@ -55,7 +55,7 @@ if (url) {
                 {% for post in paginator.posts %}
                 <li class="post-list-item">
                     <h2 class="post-list-title">
-                        <a class="hvr-underline-from-center" href="{{ post.url }}#disqus_thread">{{ post.title }}</a>
+                        <a class="hvr-underline-from-center" href="{{ post.url }}">{{ post.title }}</a>
                     </h2>
                     <div class="fb-like" data-href="{{ site.url }}{{ post.url }}" data-layout="button_count" data-action="like" data-size="small" data-show-faces="true" data-share="true"></div>
                     <p class="post-list-description">
