@@ -55,10 +55,10 @@ if (url) {
                 {% for post in paginator.posts %}
                 <li class="post-list-item">
                     <h2 class="post-list-title">
-                        [<span class="disqus-comment-count" data-disqus-url="{{ site.url }}{{ post.url }}">First article</span>]
                         <a class="hvr-underline-from-center" href="{{ post.url }}">{{ post.title }}</a>
                     </h2>
                     <div class="fb-like" data-href="{{ site.url }}{{ post.url }}" data-layout="button_count" data-action="like" data-size="small" data-show-faces="true" data-share="true"></div>
+                    <span class="disqus-comment-count" data-disqus-url="{{ site.url }}{{ post.url }}"></span>
                     <p class="post-list-description">
                         {{ post.excerpt | strip_html | strip }}
                     </p>
