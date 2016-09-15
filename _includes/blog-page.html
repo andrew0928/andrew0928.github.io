@@ -1,10 +1,47 @@
 <div class="row">
-
     <div class="col-md-8">
 
-        <!-- Blog list -->
+{% comment %}
+=======================
+The following part extracts all the tags from your posts and sort tags, so that you do not need to manually collect your tags to a place.
+=======================
+{% endcomment %}
+{% assign rawtags = "" %}
+{% for post in site.posts %}
+	{% assign ttags = post.tags | join:'|' | append:'|' %}
+	{% assign rawtags = rawtags | append:ttags %}
+{% endfor %}
+{% assign rawtags = rawtags | split:'|' | sort %}
+
+{% comment %}
+=======================
+The following part removes dulpicated tags and invalid tags like blank tag.
+=======================
+{% endcomment %}
+{% assign tags = "" %}
+{% for tag in rawtags %}
+	{% if tag != "" %}
+		{% if tags == "" %}
+			{% assign tags = tag | split:'|' %}
+		{% endif %}
+		{% unless tags contains tag %}
+			{% assign tags = tags | join:'|' | append:'|' | append:tag | split:'|' %}
+		{% endunless %}
+	{% endif %}
+{% endfor %}
+
+
+
+{% comment %}
+=======================
+The purpose of this snippet is to list all your posts posted with a certain tag.
+=======================
+{% endcomment %}
+{% for tag in tags %}
+        <h2 id="{{ tag | slugify }}">{{ tag }}</h2>
         <ul id="posts-list">
-            {% for post in site.posts %}
+        {% for post in site.posts %}
+        {% if post.tags contains tag %}
             <li class="posts-list-item">
                 <div class="posts-content">
                     <span class="posts-list-meta">{{ post.date | date: "%Y-%m-%d" }}</span>
@@ -12,19 +49,44 @@
                     <span class='circle'></span>
                 </div>
             </li>
-            {% endfor %}
+        {% endif %}
+        {% endfor %}
         </ul>
+        <hr />
+{% endfor %}
 
-        <!-- Pagination -->
-        {% include pagination.html %}
 
-        <!-- Comments -->
-        {% include disqus-comments.html %}
+
 
     </div>
 
+
+
     <div class="col-md-4">
-        {% include sidebar-post-tag.html %}
+{% comment %}
+=======================
+The purpose of this snippet is to list all the tags you have in your site.
+=======================
+{% endcomment %}
+    <h3 class="sidebar-title">Blog Tags</h3>
+    <div id="blog-categories">
+        <ul class="list-group">
+{% for tag in tags %}
+            <li class="list-group-item">
+                <a href="#{{ tag | slugify }}">{{ tag }}</a>
+                <!--<span class="badge">{{ category[1].size }}</span>-->
+            </li>
+{% endfor %}
+        </ul>
+    </div>
+    <script type="text/javascript">
+
+        $(document).ready(function(){
+            $("#blog-categories li").css('text-transform','capitalize')
+        });
+
+    </script>
+
     </div>
 
 </div>
