@@ -8,17 +8,84 @@ logo:
 ---
 
 八月底，接受了 Microsoft 的邀請，參加了 Community Open Camp 研討會，講了這場 "微服務架構 導入經驗分享 - .NET + Windows Container"。
-其實這個主題涵蓋範圍還蠻大的，不過時間只有 40 分鐘，相當有限... 最後當然是略過了很多細節，還蠻可惜的。微服務架構這幾年，因為 Docker 的
-流行，解決了微服務架構的系統佈署問題，而熱門了起來，因此這個 session 我就把主題定在分享我自己公司的 project, 如何將傳統的大型 web application
-改為 microservice architecture 的經驗談。
-
-其實我準被的內容，包含 demo, 若是要講個 4hr 也是夠講的... XD，裡面其實太多細節跟經驗值得分享的。既然當天的場子講不完，我就整理一下用文字的
-方式在這邊分享吧。我會分成這幾個章節，分成三篇文章來說明:
-1. 微服務架構設計
-2. 必要的技術: 透過 container 佈署服務 (demo: windows container)
-3. 實際案例說明 (參考 stackoverflow.com 的架構，及我們公司自己系統的改版經驗)
+其實這個主題涵蓋範圍還蠻大的，不過我一直認為，container 技術單獨介紹的話，那他就是個技術而已，若從他存在的目的來介紹，那他就是能解決
+問題的好東西。因此我特地訂了這個主題: container + microservices.
 
 <!--more-->
+
+一切要從 SOA (service oriented architecture) 開始說起。2000+ internet 紅了之後，很多大廠就開始主推 SOA 架構。不過在當時是叫好不叫座，
+主要是因為開發的技術跟佈署的技術還跟不上，導致這種架構是只有大型團隊才玩得起。現在的 container, 大幅改善了佈署的門檻，也大幅降低了小規模
+佈署的成本 (以前最小單位是 server, 後來進步到 vm, 現在則是縮小到 container), container + microservices 突然之間就變成顯學。
+
+佈署方便且快速的特性，也影響到開發團隊的流程，逐漸的促成了 devops .. 這些都是 container 會快速普及的原因。其實我很想整個交代一遍，不過
+這次 session 時間只有 40 分鐘，相當有限... 最後當然是略過了很多細節，我決定把重點擺在 microservices, 而實際的案例則用 container 來展示。
+我用的是 asp.net (mvc) project, 因此也特地照顧了較少接觸 open source 資源的 windows developer 族群，demo 採用 windows container。
+
+我準被的內容，包含 demo, 若是要講個 4hr 也是夠講的... XD，裡面其實太多細節跟經驗值得分享的。既然當天的場子講不完，我就整理一下用文字的
+方式在這邊分享吧。我會分成這幾個章節，預計會分成三篇文章來說明:
+
+1. 微服務架構
+2. 容器化的佈署方式 (demo: windows container)
+3. 實際案例說明 (大型人資系統, ASP.NET WebForm application)
+
+前言結束，本文正式開始!
+
+
+------
+# 微服務(microservices) vs 單體式架構(monolithic)
+
+軟體就是不斷的 reuse code, 不斷的堆疊, 累積成能解決問題的 application. 累積這些 code 的方法很多，過去的軟體開發方式，最常用的就是
+library / component 的方式，把 code / binary 組裝成一個大型的 application。先來看張圖:
+
+![單體式架構(monolithic) vs 微服務(microservices)](/wp-content/uploads/2016/09/microservice-slides-06.PNG)
+
+
+## 單體式架構
+
+這兩種架構，應該從巨觀來看。不論你的軟體是用什麼方式開發的，最終你的 application 是 "單一" 一個 application, 而他累積功能的作法
+是透過在 application 內不斷 reuse library or component 的方式，那就稱做單體式架構 (monolithic)。這種思維下，通常用的是同一種
+平台，框架，或是語言所打造的大型應用程式。執行或佈署時，對於作業系統而言，就是個 process，只是他的規模大了一點。
+
+作業系統對應用程式的管理，都是以 process 為單位的，也就是說一旦這個 application 出了問題，就是整個 process restart。若是效能不足
+需要擴充，就是整個 prcess scale out。規模過大的 application, 往往難以微調，充分運用整台 server 的硬體資源。而 OS 的保護機制也是
+以 process 為最小單位，若你的 application 某部分出了問題，也無法進行隔離，可能會導致整個 process fail, 需要 restart.
+
+
+
+
+
+
+這張圖應該這樣看，上面的 application 代表的就是你開發的應用程式。裡面的小方塊，我們可以把他看成你的系統內幾個主要的模組。
+單體式架構的 application 主要都是用 "元件" (component) 或是 "函示庫" (library) 的方式組合起來的。這種方式，最終會產出
+一個規模龐大的 application, 就是這張圖左方的 Monolithic application approach 的例子。
+
+軟體靠重複使用現有模組 (reuse) 來建構大系統，單體式架構的思維下，reuse 的手法主要就是在 code base 的前提下來組合重複使用
+既有的模組。舉例來說，.NET 有很多 Microsoft 提供的 BCL (Base Class library), 我們也很容易從 Nuget 取得很多別人開發好的
+Package (DLL, assemblies). 這些套件最終被組合到一個大型的 application 內。我們 reuse 的是他的 code, 在我們自己的 OS 內
+運行。對於 OS 來說，我們的 application 就是個很龐大的 process 而已, 除了大小之外，跟別的 process 並無不同。OS 都是以 process
+為單位，做 "啟動"、"執行"、"終止" 等等操作。
+
+Code base 過大，在開發及測試的過程中也會帶來很多困難。系統的複雜度，是隨著你的功能的增加，而呈指數遞增的。有十倍功能的系統，
+操作跟測試的複雜度可能會暴增為 100 ~ 1000 倍，規模越大會越難維護，我想開發過系統的人都有這種體認。然而規模變大，帶來的問題
+不只這個，系統執行的維運管理也會是個大問題。舉例來說，當一個模組沒有做好記憶體管理，導致 Out Of Memory Exception, 毀掉的
+是整個 process, 而不是單一這個模組。當一個模組 fail, 導致整個 process 掛掉的時候，對，就是整個應用程式掛掉了。
+
+單一一個大型 application, 在 OS 的管理角度來看是無法再分割的，執行時無法再切割為更小的佈署單位。效能不足時，只能對整個
+application 進行 scale out，無論你產生瓶頸的是哪一個模組... OS 無法只針對特定模組做 scale out. 這也代表你無法針對特定模組
+的資源使用最佳化...
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # 前言
 
@@ -43,8 +110,6 @@ logo:
 
 # 微服務(microservices) vs 單體式架構(monolithic)
 
-先來看張圖:
-![單體式架構(monolithic) vs 微服務(microservices)](/wp-content/uploads/2016/09/microservice-slides-06.PNG)
 
 
 ## 單體式架構
