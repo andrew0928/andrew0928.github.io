@@ -46,8 +46,8 @@ session 只有 40 min, 我必須雇到前後資訊的串接，也要顧到在場
 3. [source code, files, demo scripts](https://github.com/andrew0928/CommunityOpenCampDemo)
 
 
-------
-## 微服務(microservices) vs 單體式架構(monolithic)
+
+## 微服務架構(Microservices) v.s. 單體式架構(Monolithic)
 
 軟體就是不斷的 reuse code, 不斷的堆疊, 累積成能解決問題的 application. 累積這些 code 的方法很多，過去的軟體開發方式，最常用的就是
 library / component 的方式，把 code / binary 組裝成一個大型的 application。先來看張圖:
@@ -64,7 +64,7 @@ library / component 的方式，把 code / binary 組裝成一個大型的 appli
  不大，但是一個完整的 application 可能會包含好幾個服務。
 
 
-### Develop Team: Reuse of Codes 
+## Develop Team: Reuse of Codes 
 
 從這些根本的差異，其實就看的出來它們的特性，跟適用的情境了。從軟體開發的角度來看，我把 code reuse 的方式分為幾種:
 
@@ -91,7 +91,7 @@ reuse 的層級只在 compile time, 且限定為同一種語言 (廢話), 需要
 則是以 (3) 的方式來解構整個 application, 之後每個 service 的開發，才會考慮到 (1) or (2) 開發方式的架構。 
 
 
-### Operating Team: Application Maintainess
+## Operating Team: Application Maintainess
 
 若從維運的角度來看，這兩種架構的差異也很明顯。對於維運團隊來看，上述的 (1) source code reuse, (2) binary code reuse 幾乎是
 無感的，反正最終 develop team 打包好的 application 是什麼就是什麼了。在 OP 的觀點來看，單體式架構的 application 能做的管理跟監控很有限，掛掉了
@@ -105,8 +105,3 @@ reuse 的層級只在 compile time, 且限定為同一種語言 (廢話), 需要
 不過，相對於 application 的佈署，微服務架構也相對的複雜。最傳統的 application, 你可能只需要搞定 web + database, 改成微服務架構你要裝的
 東西就多了。這是另一個門檻，也是我為何一定要在這個主題一起提到 container 的原因。因為這兩個技術真的是相輔相成，互相互補的技術啊! container 技術
 正好填補了這個需求，大幅簡化了微服務架構的 application deployment 作業。這部分下一段再來說明 (未完待續...)
-
-
-
-## Community Open Camp - Session References:
-
